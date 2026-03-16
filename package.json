@@ -1,0 +1,16 @@
+{
+  "name": "estock",
+  "version": "1.0.0",
+  "description": "stock management using javascript",
+  "license": "ISC",
+  "author": "sabil",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": ""
+  },
+  "dependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
