@@ -7,9 +7,61 @@ import {
   Menu,
   NotebookPen,
 } from "lucide-react";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import Axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
+
+type ProductInput = {
+  product_sku: string;
+  title: string;
+  category: string;
+  unit: string;
+  cost_price: number;
+  selling_price: number;
+  stock: number;
+  minimum_stock: number;
+  rack: string;
+  description: string;
+};
 
 const AddProduct = () => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ProductInput>();
+
+  const onSubmit: SubmitHandler<ProductInput> = (data) => {
+    Axios.post(
+      "http://localhost:9000/product/new",
+      {
+        product_sku: data.product_sku,
+        product_title: data.title,
+        category: data.category,
+        unit: data.unit,
+        cost_price: data.cost_price,
+        selling_price: data.selling_price,
+        stock: data.stock,
+        minimum_stock: data.minimum_stock,
+        rack: data.rack,
+        description: data.description,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    )
+      .then((res) => {
+        console.log(res);
+        toast.success("Data Produk Berhasil Ditambahkan");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   useEffect(() => {
     document.title = "Tambah Data Produk | EStock";
@@ -100,8 +152,12 @@ const AddProduct = () => {
                   Lengkapi informasi utama produk untuk stok yang rapi.
                 </p>
               </div>
-              <div className="grid grid-cols-1 gap-4 px-6 py-5 md:grid-cols-12">
-                <div className="md:col-span-3">
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="grid grid-cols-1 gap-4 px-6 py-5 md:grid-cols-12"
+              >
+                <Toaster />
+                <div className="md:col-span-4">
                   <label
                     htmlFor="product-sku"
                     className="block text-sm font-medium text-slate-700 mb-1.5"
@@ -111,12 +167,20 @@ const AddProduct = () => {
                   <input
                     type="text"
                     id="product-sku"
+                    {...register("product_sku", {
+                      required: "SKU produk harus diisi",
+                    })}
                     className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-all duration-200
                     focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500
                     hover:border-slate-400"
                   />
+                  {errors.product_sku && (
+                    <small className="text-red-500 text-xs">
+                      {errors.product_sku.message}
+                    </small>
+                  )}
                 </div>
-                <div className="md:col-span-5">
+                <div className="md:col-span-4">
                   <label
                     htmlFor="product-name"
                     className="block text-sm font-medium text-slate-700 mb-1.5"
@@ -126,10 +190,18 @@ const AddProduct = () => {
                   <input
                     type="text"
                     id="product-name"
+                    {...register("title", {
+                      required: "Nama produk harus diisi",
+                    })}
                     className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-all duration-200
                     focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500
                     hover:border-slate-400"
                   />
+                  {errors.title && (
+                    <small className="text-red-500 text-xs">
+                      {errors.title.message}
+                    </small>
+                  )}
                 </div>
                 <div className="md:col-span-4">
                   <label
@@ -140,14 +212,22 @@ const AddProduct = () => {
                   </label>
                   <select
                     id="product-category"
+                    {...register("category", {
+                      required: "Tentukan kategori produk",
+                    })}
                     className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 hover:border-slate-400 cursor-pointer"
                   >
                     <option value="">Pilih Kategori</option>
                     <option value="Bahan Pokok">Bahan Pokok</option>
                     <option value="Bumbu Dapur">Bumbu Dapur</option>
                   </select>
+                  {errors.category && (
+                    <small className="text-red-500 text-xs">
+                      {errors.category.message}
+                    </small>
+                  )}
                 </div>
-                <div className="md:col-span-3">
+                <div className="md:col-span-4">
                   <label
                     htmlFor="product-unit"
                     className="block text-sm font-medium text-slate-700 mb-1.5"
@@ -156,6 +236,9 @@ const AddProduct = () => {
                   </label>
                   <select
                     id="product-unit"
+                    {...register("unit", {
+                      required: "Tentukan satuan produk",
+                    })}
                     className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 hover:border-slate-400 cursor-pointer"
                   >
                     <option value="">Pilih Satuan</option>
@@ -166,6 +249,11 @@ const AddProduct = () => {
                     <option value="bungkus">bungkus</option>
                     <option value="pack">pack</option>
                   </select>
+                  {errors.unit && (
+                    <small className="text-red-500 text-xs">
+                      {errors.unit.message}
+                    </small>
+                  )}
                 </div>
                 <div className="md:col-span-4">
                   <label
@@ -181,11 +269,19 @@ const AddProduct = () => {
                     <input
                       type="number"
                       id="buying-price"
+                      {...register("cost_price", {
+                        required: "Harga beli produk harus diisi",
+                      })}
                       className="w-full rounded-r-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-all duration-200
                       focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500
                       hover:border-slate-400"
                     />
                   </div>
+                  {errors.cost_price && (
+                    <small className="text-red-500 text-xs">
+                      {errors.cost_price.message}
+                    </small>
+                  )}
                 </div>
                 <div className="md:col-span-4">
                   <label
@@ -201,11 +297,23 @@ const AddProduct = () => {
                     <input
                       type="number"
                       id="selling-price"
+                      {...register("selling_price", {
+                        required: "Harga jual produk harus diisi",
+                        min: {
+                          value: 500,
+                          message: "Harga jual tidak boleh < 500",
+                        },
+                      })}
                       className="w-full rounded-r-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-all duration-200
                       focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500
                       hover:border-slate-400"
                     />
                   </div>
+                  {errors.selling_price && (
+                    <small className="text-red-500 text-xs">
+                      {errors.selling_price.message}
+                    </small>
+                  )}
                 </div>
                 <div className="md:col-span-4">
                   <label
@@ -218,6 +326,9 @@ const AddProduct = () => {
                     <input
                       type="number"
                       id="product-stock"
+                      {...register("stock", {
+                        required: "Stok produk harus diisi",
+                      })}
                       className="w-full rounded-l-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-all duration-200
                       focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500
                       hover:border-slate-400"
@@ -226,6 +337,11 @@ const AddProduct = () => {
                       Kg
                     </div>
                   </div>
+                  {errors.stock && (
+                    <small className="text-red-500 text-xs">
+                      {errors.stock.message}
+                    </small>
+                  )}
                 </div>
                 <div className="md:col-span-4">
                   <label
@@ -238,6 +354,9 @@ const AddProduct = () => {
                     <input
                       type="number"
                       id="minimum-stock"
+                      {...register("minimum_stock", {
+                        required: "Tentukan stok minimum produk",
+                      })}
                       className="w-full rounded-l-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-all duration-200
                       focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500
                       hover:border-slate-400"
@@ -246,6 +365,11 @@ const AddProduct = () => {
                       Kg
                     </div>
                   </div>
+                  {errors.minimum_stock && (
+                    <small className="text-red-500 text-xs">
+                      {errors.minimum_stock.message}
+                    </small>
+                  )}
                 </div>
                 <div className="md:col-span-4">
                   <label
@@ -257,10 +381,18 @@ const AddProduct = () => {
                   <input
                     type="text"
                     id="rack-location"
+                    {...register("rack", {
+                      required: "Lokasi rak harus diisi",
+                    })}
                     className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-all duration-200
                     focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500
                     hover:border-slate-400"
                   />
+                  {errors.category && (
+                    <small className="text-red-500 text-xs">
+                      {errors.category.message}
+                    </small>
+                  )}
                 </div>
                 <div className="md:col-span-12">
                   <label
@@ -271,13 +403,23 @@ const AddProduct = () => {
                   </label>
                   <textarea
                     id="product-description"
+                    {...register("description")}
                     rows={4}
                     className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-all duration-200
                     focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500
                     hover:border-slate-400"
+                    placeholder="Berikan deskripsi produk di sini (opsional"
                   ></textarea>
                 </div>
-              </div>
+                <div className="md:col-span-12">
+                  <button
+                    type="submit"
+                    className="rounded-lg shadow bg-red-500 hover:bg-red-600 p-3 w-full text-white cursor-pointer active:scale-95 transition-transform"
+                  >
+                    Simpan
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
