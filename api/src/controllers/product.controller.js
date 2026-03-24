@@ -2,7 +2,7 @@ import { prisma } from "../lib/prisma.js"
 import productService from "../services/product.service.js"
 
 const productController = {
-    getAll : async (req, res) => {
+    getAll : async (_, res) => {
 
         try{
             const product = await prisma.product.findMany()
@@ -23,10 +23,10 @@ const productController = {
             product_title: req.body.product_title,
             category: req.body.category,
             unit: req.body.unit,
-            cost_price: req.body.cost_price,
-            selling_price: req.body.selling_price,
-            stock: req.body.stock,
-            minimum_stock: req.body.minimum_stock,
+            cost_price: Number(req.body.cost_price),
+            selling_price: Number(req.body.selling_price),
+            stock: Number(req.body.stock),
+            minimum_stock: Number(req.body.minimum_stock),
             rack: req.body.rack,
             description: req.body.description
         }
@@ -41,7 +41,7 @@ const productController = {
         }catch(err){
             res.json({
                 message: "Error creating product",
-                err
+                err: err.message
             })
         }
 

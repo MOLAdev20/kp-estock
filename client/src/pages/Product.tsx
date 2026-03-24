@@ -1,8 +1,44 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Calculator, ChevronRight, Database, Home, Menu } from "lucide-react";
+import api from "../api/axios";
+import toast, { Toaster } from "react-hot-toast";
+
+type product = {
+  id: number;
+  product_sku: string;
+  product_title: string;
+  category: string;
+  unit: string;
+  cost_price: number;
+  selling_price: number;
+  stock: number;
+  minimum_stock: number;
+  rack: string;
+  description: string;
+};
 
 const Product = () => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [data, setData] = useState<product[]>([]);
+
+  useEffect(() => {
+    api
+      .get("/product")
+      .then((res) => {
+        console.log(res.data.data);
+        setData(res.data.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
+  function deleteProduct(id: number) {
+    api.delete("/product/" + id).then((res) => {
+      console.log(res);
+      toast.success("Data Produk Berhasil Dihapus");
+    });
+  }
 
   return (
     <>
@@ -75,8 +111,9 @@ const Product = () => {
                 <span>Master Produk</span>
               </div>
             </div>
+            <Toaster />
             <div className="rounded-lg shadow bg-white mt-8 h-full">
-              <div className="p-1 bg-slate-500 rounded-t text-white text-sm">
+              <div className="p-1 bg-red-500 rounded-t text-white text-sm">
                 <h1>Tabel Produk</h1>
               </div>
               <div className="min-w-full mt-2 p-3">
@@ -88,88 +125,60 @@ const Product = () => {
                           scope="col"
                           className="px-6 py-3 text-start text-xs font-medium text-muted-foreground-1 uppercase"
                         >
-                          Name
+                          No
                         </th>
                         <th
                           scope="col"
                           className="px-6 py-3 text-start text-xs font-medium text-muted-foreground-1 uppercase"
                         >
-                          Age
+                          SKU
                         </th>
                         <th
                           scope="col"
                           className="px-6 py-3 text-start text-xs font-medium text-muted-foreground-1 uppercase"
                         >
-                          Address
+                          Produk
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-start text-xs font-medium text-muted-foreground-1 uppercase"
+                        >
+                          Stok
                         </th>
                         <th
                           scope="col"
                           className="px-6 py-3 text-end text-xs font-medium text-muted-foreground-1 uppercase"
                         >
-                          Action
+                          Aksi
                         </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-table-line">
-                      <tr>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">
-                          John Brown
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                          45
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                          New York No. 1 Lake Park
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
-                          <button
-                            type="button"
-                            className="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg text-primary hover:text-primary-hover focus:outline-hidden focus:text-primary-focus disabled:opacity-50 disabled:pointer-events-none"
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-
-                      <tr>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">
-                          Jim Green
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                          27
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                          London No. 1 Lake Park
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
-                          <button
-                            type="button"
-                            className="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg text-primary hover:text-primary-hover focus:outline-hidden focus:text-primary-focus disabled:opacity-50 disabled:pointer-events-none"
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-
-                      <tr>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">
-                          Joe Black
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                          31
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                          Sidney No. 1 Lake Park
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
-                          <button
-                            type="button"
-                            className="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg text-primary hover:text-primary-hover focus:outline-hidden focus:text-primary-focus disabled:opacity-50 disabled:pointer-events-none"
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
+                      {data.map((item, index) => (
+                        <tr key={index}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">
+                            {item.id}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                            {item.product_sku}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                            {item.product_title}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                            {item.stock}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+                            <a
+                              href="#"
+                              className="text-red-500"
+                              onClick={() => deleteProduct(item.id)}
+                            >
+                              Hapus
+                            </a>
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
