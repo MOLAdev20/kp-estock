@@ -8,59 +8,52 @@ import {
   NotebookPen,
 } from "lucide-react";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import Axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
-
-type ProductInput = {
-  product_sku: string;
-  title: string;
-  category: string;
-  unit: string;
-  cost_price: number;
-  selling_price: number;
-  stock: number;
-  minimum_stock: number;
-  rack: string;
-  description: string;
-};
+import Spinner from "../components/ui/Spinner";
+import api from "../api/axios";
+import type { Product } from "../types";
+import { InputField, SelectOption } from "../components/ui/InputField";
 
 const AddProduct = () => {
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<ProductInput>();
+    reset,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<Product>({
+    mode: "onSubmit",
+    reValidateMode: "onBlur",
+  });
 
-  const onSubmit: SubmitHandler<ProductInput> = (data) => {
-    Axios.post(
-      "http://localhost:9000/product/new",
-      {
-        product_sku: data.product_sku,
-        product_title: data.title,
-        category: data.category,
-        unit: data.unit,
-        cost_price: data.cost_price,
-        selling_price: data.selling_price,
-        stock: data.stock,
-        minimum_stock: data.minimum_stock,
-        rack: data.rack,
-        description: data.description,
-      },
-      {
+  const onSubmit: SubmitHandler<Product> = (data) => {
+    api
+      .post("product/new", data, {
         headers: {
           "Content-Type": "application/json",
         },
-      },
-    )
-      .then((res) => {
-        console.log(res);
-        toast.success("Data Produk Berhasil Ditambahkan");
       })
-      .catch((err) => {
-        console.log(err);
+      .then(() => {
+        toast.success("Data produk berhasil ditambahkan");
+        reset();
+      })
+      .catch(() => {
+        toast.error("Data Produk Gagal Ditambahkan");
       });
+  };
+
+  const checkSkuValidate = async (sku: string) => {
+    try {
+      await api.get("product/check-sku/" + sku);
+      return true;
+    } catch (err: any) {
+      if (err.response && err.response.status === 409) {
+        return "SKU tersebut sudah digunakan";
+      }
+      return "Gagal cek SKU, periksa koneksi internet anda";
+    }
   };
 
   useEffect(() => {
@@ -158,74 +151,41 @@ const AddProduct = () => {
               >
                 <Toaster />
                 <div className="md:col-span-4">
-                  <label
-                    htmlFor="product-sku"
-                    className="block text-sm font-medium text-slate-700 mb-1.5"
-                  >
-                    SKU Produk
-                  </label>
-                  <input
+                  <InputField
+                    label="SKU Produk"
                     type="text"
                     id="product-sku"
-                    {...register("product_sku", {
+                    register={register("product_sku", {
                       required: "SKU produk harus diisi",
+                      validate: checkSkuValidate,
                     })}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-all duration-200
-                    focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500
-                    hover:border-slate-400"
+                    error={errors.product_sku}
                   />
-                  {errors.product_sku && (
-                    <small className="text-red-500 text-xs">
-                      {errors.product_sku.message}
-                    </small>
-                  )}
                 </div>
                 <div className="md:col-span-4">
-                  <label
-                    htmlFor="product-name"
-                    className="block text-sm font-medium text-slate-700 mb-1.5"
-                  >
-                    Nama Produk
-                  </label>
-                  <input
+                  <InputField
+                    label="Nama Produk"
                     type="text"
                     id="product-name"
-                    {...register("title", {
+                    register={register("product_title", {
                       required: "Nama produk harus diisi",
                     })}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-all duration-200
-                    focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500
-                    hover:border-slate-400"
+                    error={errors.product_title}
                   />
-                  {errors.title && (
-                    <small className="text-red-500 text-xs">
-                      {errors.title.message}
-                    </small>
-                  )}
                 </div>
                 <div className="md:col-span-4">
-                  <label
-                    htmlFor="product-category"
-                    className="block text-sm font-medium text-slate-700 mb-1.5"
-                  >
-                    Kategori
-                  </label>
-                  <select
+                  <SelectOption
+                    label="Kategori"
                     id="product-category"
-                    {...register("category", {
+                    register={register("category", {
                       required: "Tentukan kategori produk",
                     })}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 hover:border-slate-400 cursor-pointer"
-                  >
-                    <option value="">Pilih Kategori</option>
-                    <option value="Bahan Pokok">Bahan Pokok</option>
-                    <option value="Bumbu Dapur">Bumbu Dapur</option>
-                  </select>
-                  {errors.category && (
-                    <small className="text-red-500 text-xs">
-                      {errors.category.message}
-                    </small>
-                  )}
+                    options={[
+                      { value: "Bahan Pokok", label: "Bahan Pokok" },
+                      { value: "Bumbu Dapur", label: "Bumbu Dapur" },
+                    ]}
+                    error={errors.category}
+                  />
                 </div>
                 <div className="md:col-span-4">
                   <label
@@ -256,143 +216,67 @@ const AddProduct = () => {
                   )}
                 </div>
                 <div className="md:col-span-4">
-                  <label
-                    htmlFor="buying-price"
-                    className="block text-sm font-medium text-slate-700 mb-1.5"
-                  >
-                    Harga Beli
-                  </label>
-                  <div className="flex">
-                    <div className="flex items-center rounded-l-lg border border-r-0 border-slate-300 bg-slate-100 px-3 text-xs font-semibold text-slate-600">
-                      Rp
-                    </div>
-                    <input
-                      type="number"
-                      id="buying-price"
-                      {...register("cost_price", {
-                        required: "Harga beli produk harus diisi",
-                      })}
-                      className="w-full rounded-r-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-all duration-200
-                      focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500
-                      hover:border-slate-400"
-                    />
-                  </div>
-                  {errors.cost_price && (
-                    <small className="text-red-500 text-xs">
-                      {errors.cost_price.message}
-                    </small>
-                  )}
+                  <InputField
+                    label="Harga Beli"
+                    type="number"
+                    id="buying-price"
+                    register={register("cost_price", {
+                      required: "Harga beli produk harus diisi",
+                    })}
+                    error={errors.cost_price}
+                    currencyPrefix="Rp"
+                  />
                 </div>
                 <div className="md:col-span-4">
-                  <label
-                    htmlFor="selling-price"
-                    className="block text-sm font-medium text-slate-700 mb-1.5"
-                  >
-                    Harga Jual
-                  </label>
-                  <div className="flex">
-                    <div className="flex items-center rounded-l-lg border border-r-0 border-slate-300 bg-slate-100 px-3 text-xs font-semibold text-slate-600">
-                      Rp
-                    </div>
-                    <input
-                      type="number"
-                      id="selling-price"
-                      {...register("selling_price", {
-                        required: "Harga jual produk harus diisi",
-                        min: {
-                          value: 500,
-                          message: "Harga jual tidak boleh < 500",
-                        },
-                      })}
-                      className="w-full rounded-r-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-all duration-200
-                      focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500
-                      hover:border-slate-400"
-                    />
-                  </div>
-                  {errors.selling_price && (
-                    <small className="text-red-500 text-xs">
-                      {errors.selling_price.message}
-                    </small>
-                  )}
+                  <InputField
+                    label="Harga Jual"
+                    type="number"
+                    id="selling-price"
+                    register={register("selling_price", {
+                      required: "Harga jual produk harus diisi",
+                      min: {
+                        value: 500,
+                        message: "Harga jual tidak boleh < 500",
+                      },
+                    })}
+                    currencyPrefix="Rp"
+                    error={errors.selling_price}
+                  />
                 </div>
                 <div className="md:col-span-4">
-                  <label
-                    htmlFor="product-stock"
-                    className="block text-sm font-medium text-slate-700 mb-1.5"
-                  >
-                    Jumlah Stok
-                  </label>
-                  <div className="flex">
-                    <input
-                      type="number"
-                      id="product-stock"
-                      {...register("stock", {
-                        required: "Stok produk harus diisi",
-                      })}
-                      className="w-full rounded-l-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-all duration-200
-                      focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500
-                      hover:border-slate-400"
-                    />
-                    <div className="flex items-center rounded-r-lg border border-l-0 border-slate-300 bg-slate-100 px-3 text-xs font-semibold text-slate-600">
-                      Kg
-                    </div>
-                  </div>
-                  {errors.stock && (
-                    <small className="text-red-500 text-xs">
-                      {errors.stock.message}
-                    </small>
-                  )}
+                  <InputField
+                    label="Jumlah Stok"
+                    id="product-stock"
+                    register={register("stock", {
+                      required: "Stok produk harus diisi",
+                    })}
+                    type="number"
+                    unit={!watch("unit") ? "kg" : watch("unit")}
+                    error={errors.stock}
+                  />
                 </div>
                 <div className="md:col-span-4">
-                  <label
-                    htmlFor="minimum-stock"
-                    className="block text-sm font-medium text-slate-700 mb-1.5"
-                  >
-                    Stok Minimum
-                  </label>
-                  <div className="flex">
-                    <input
-                      type="number"
-                      id="minimum-stock"
-                      {...register("minimum_stock", {
-                        required: "Tentukan stok minimum produk",
-                      })}
-                      className="w-full rounded-l-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-all duration-200
-                      focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500
-                      hover:border-slate-400"
-                    />
-                    <div className="flex items-center rounded-r-lg border border-l-0 border-slate-300 bg-slate-100 px-3 text-xs font-semibold text-slate-600">
-                      Kg
-                    </div>
-                  </div>
-                  {errors.minimum_stock && (
-                    <small className="text-red-500 text-xs">
-                      {errors.minimum_stock.message}
-                    </small>
-                  )}
+                  <InputField
+                    label="Stok Minimum"
+                    id="minimum-stock"
+                    type="number"
+                    register={register("minimum_stock", {
+                      required: "Tentukan stok minimum produk",
+                    })}
+                    error={errors.minimum_stock}
+                    unit={!watch("unit") ? "kg" : watch("unit")}
+                  />
                 </div>
                 <div className="md:col-span-4">
-                  <label
-                    htmlFor="rack-location"
-                    className="block text-sm font-medium text-slate-700 mb-1.5"
-                  >
-                    Lokasi Rak
-                  </label>
-                  <input
-                    type="text"
+                  <InputField
+                    label="Lokasi Rak"
                     id="rack-location"
-                    {...register("rack", {
+                    type="text"
+                    register={register("rack", {
                       required: "Lokasi rak harus diisi",
                     })}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-all duration-200
-                    focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500
-                    hover:border-slate-400"
+                    error={errors.rack}
                   />
-                  {errors.category && (
-                    <small className="text-red-500 text-xs">
-                      {errors.category.message}
-                    </small>
-                  )}
                 </div>
                 <div className="md:col-span-12">
                   <label
@@ -414,8 +298,10 @@ const AddProduct = () => {
                 <div className="md:col-span-12">
                   <button
                     type="submit"
-                    className="rounded-lg shadow bg-red-500 hover:bg-red-600 p-3 w-full text-white cursor-pointer active:scale-95 transition-transform"
+                    disabled={isSubmitting}
+                    className={`rounded-lg flex gap-1 items-center justify-center shadow bg-red-500 hover:bg-red-600 p-3 w-full text-white cursor-pointer active:scale-95 transition-transform disabled:cursor-not-allowed disabled:bg-red-300 disabled:scale-100`}
                   >
+                    {isSubmitting ? <Spinner size="sm" /> : null}
                     Simpan
                   </button>
                 </div>

@@ -1,12 +1,10 @@
 import { prisma } from "../lib/prisma.js"
 
 const productService = {
-    store: async param => {
-        const inserted = await prisma.product.create({
-            data: param
+    store: async data => {
+        return await prisma.product.create({
+            data: data
         })
-
-        return inserted
     }
 }
 
