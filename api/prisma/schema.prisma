@@ -14,6 +14,7 @@ datasource db {
 
 model product {
   id Int @id @unique @default(autoincrement())
+  uuid String @unique @default(uuid())
   product_sku String @unique
   product_title String
   category String

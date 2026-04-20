@@ -13,8 +13,11 @@ import Spinner from "../components/ui/Spinner";
 import api from "../api/axios";
 import type { Product } from "../types";
 import { InputField, SelectOption } from "../components/ui/InputField";
+import { useParams } from "react-router-dom";
 
-const AddProduct = () => {
+const EditProduct = () => {
+  const { id } = useParams();
+
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
 
   const {
@@ -56,8 +59,18 @@ const AddProduct = () => {
     }
   };
 
+  const fetchProductData = async () => {
+    try {
+      const data = await api.get("product/" + id);
+      console.log(data);
+    } catch (err: any) {
+      console.log(err);
+    }
+  };
+
   useEffect(() => {
     document.title = "Tambah Data Produk | EStock";
+    fetchProductData();
   }, []);
 
   return (
@@ -126,8 +139,8 @@ const AddProduct = () => {
                   <NotebookPen size={20} />
                 </div>
                 <div>
-                  <h1 className="text-4xl">Input Produk</h1>
-                  <small>Kelola data produk di sini</small>
+                  <h1 className="text-4xl">Edit Produk</h1>
+                  <small>Edit data produk di sini</small>
                 </div>
               </div>
               <div className="flex items-center gap-1 mt-2 text-sm">
@@ -316,4 +329,4 @@ const AddProduct = () => {
   );
 };
 
-export default AddProduct;
+export default EditProduct;

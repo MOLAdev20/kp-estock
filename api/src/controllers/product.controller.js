@@ -33,18 +33,81 @@ const productController = {
 
         try{
             const insertedProduct = await productService.store(data)
-
             res.json({
                 message: "Product created successfully",
                 newProduct: insertedProduct
             })
         }catch(err){
-            res.json({
+            res.status(500).json({
                 message: "Error creating product",
                 err: err.message
             })
         }
 
+    },
+
+    deleteOne: async(req, res) => {
+        try{
+            await prisma.product.delete({
+                where: {
+                    uuid: req.params.uuid
+                }
+            })
+
+            res.json({
+                message: "Product deleted successfully"
+            })
+        }catch(err){
+            res.status(500).json({
+                message: "Error deleting product",
+                err: err.message
+            })
+        }
+    },
+
+    validateSku: async(req, res) => {
+        try{
+            const product = await prisma.product.findUnique({
+                where: {
+                    product_sku: req.params.sku
+                }
+            })
+
+            if(product){
+                res.status(409).json({
+                    message: "Product SKU already exists"
+                })
+            }
+
+            res.json({
+                message: "Product SKU available"
+            })
+
+        }catch(err){
+            console.log(err)
+            res.status(500).json({
+                message: "Error validating SKU",
+                err: err.message
+            })
+        }
+    },
+
+    getById: async (req, res) => {
+
+        const {id} = req.params
+
+        try{
+            const product = await prisma.product.findFirstOrThrow({
+                id
+            })
+            res.json({
+                data: product
+            })
+        }catch(err){
+            res.status(500).json({
+                err: err.message
+            })
+        }
     }
 }
 
