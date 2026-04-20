@@ -9,6 +9,11 @@ const services = {
 
     deleteProduct: async (uuid: string) => {
         await api.delete("/product/delete/" + uuid)
+    },
+
+    getProduct: async (id: string): Promise<Product[]> => {
+        const response = await api.get("/product/"+id)
+        return response.data.data
     }
 }
 

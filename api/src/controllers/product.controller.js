@@ -90,6 +90,24 @@ const productController = {
                 err: err.message
             })
         }
+    },
+
+    getById: async (req, res) => {
+
+        const {id} = req.params
+
+        try{
+            const product = await prisma.product.findFirstOrThrow({
+                id
+            })
+            res.json({
+                data: product
+            })
+        }catch(err){
+            res.status(500).json({
+                err: err.message
+            })
+        }
     }
 }
 

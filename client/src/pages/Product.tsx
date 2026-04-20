@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ChevronRight, Home } from "lucide-react";
+import { ChevronRight, Home, Pencil, Plus, Trash2 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import AdminLayout from "../components/layouts/AdminLayout";
 import type { Product } from "../types";
@@ -62,10 +62,14 @@ const ProductPage = () => {
       </div>
       <Toaster />
       <div className="mt-8 h-full">
-        <button className="px-5 py-2 bg-red-500 text-white rounded-lg mb-2 cursor-pointer hover:bg-red-600 active:bg-red-700 transition-colors">
+        <a
+          href="/add-product"
+          className="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-red-600 active:scale-95"
+        >
+          <Plus size={16} />
           Tambah
-        </button>
-        <div className="bg-white rounded-lg shadow">
+        </a>
+        <div className="bg-white mt-3 rounded-lg shadow">
           <div className="p-1 bg-red-500 rounded-t text-white text-sm">
             <h1>Tabel Produk</h1>
           </div>
@@ -126,7 +130,7 @@ const ProductPage = () => {
                       </td>
                     </tr>
                   ) : (
-                    data.map((item: Product, _) => (
+                    data.map((item: Product) => (
                       <tr key={item.uuid}>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">
                           {item.uuid}
@@ -141,16 +145,21 @@ const ProductPage = () => {
                           {item.stock}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
-                          <a href="/product/" className="text-blue-500">
+                          <a
+                            href="/edit-product"
+                            className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-3 py-1.5 text-blue-600 transition-colors hover:bg-blue-50"
+                          >
+                            <Pencil size={14} />
                             Edit
                           </a>
-                          <a
-                            href="#"
-                            className="text-red-500"
+                          <button
+                            type="button"
+                            className="ml-2 inline-flex cursor-pointer items-center gap-1 rounded-md border border-slate-200 px-3 py-1.5 text-red-600 transition-colors hover:bg-red-50"
                             onClick={() => deleteProduct(item.uuid)}
                           >
+                            <Trash2 size={14} />
                             Hapus
-                          </a>
+                          </button>
                         </td>
                       </tr>
                     ))
