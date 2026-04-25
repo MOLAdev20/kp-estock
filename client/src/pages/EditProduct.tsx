@@ -10,15 +10,19 @@ import {
 import { useForm, type SubmitHandler } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
 import Spinner from "../components/ui/Spinner";
-import api from "../api/axios";
+import { isAxiosError } from "axios";
 import type { Product } from "../types";
 import { InputField, SelectOption } from "../components/ui/InputField";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import services from "../services/productServices";
 
 const EditProduct = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
 
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
+  const [loadingProduct, setLoadingProduct] = useState<boolean>(false);
+  const [initialSku, setInitialSku] = useState<string>("");
 
   const {
     register,
@@ -31,47 +35,74 @@ const EditProduct = () => {
     reValidateMode: "onBlur",
   });
 
-  const onSubmit: SubmitHandler<Product> = (data) => {
-    api
-      .post("product/new", data, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-      .then(() => {
-        toast.success("Data produk berhasil ditambahkan");
-        reset();
-      })
-      .catch(() => {
-        toast.error("Data Produk Gagal Ditambahkan");
-      });
+  const onSubmit: SubmitHandler<Product> = async (data) => {
+    if (!id) {
+      toast.error("ID produk tidak ditemukan");
+      return;
+    }
+
+    try {
+      await services.updateProduct(id, data);
+      toast.success("Data produk berhasil diperbarui");
+      navigate("/products", { replace: true });
+    } catch {
+      toast.error("Data Produk Gagal Diperbarui");
+    }
   };
 
   const checkSkuValidate = async (sku: string) => {
-    try {
-      await api.get("product/check-sku/" + sku);
+    if (sku.trim() === initialSku) {
       return true;
-    } catch (err: any) {
-      if (err.response && err.response.status === 409) {
+    }
+
+    try {
+      await services.validateSku(sku);
+      return true;
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 409) {
         return "SKU tersebut sudah digunakan";
       }
+
       return "Gagal cek SKU, periksa koneksi internet anda";
     }
   };
 
   const fetchProductData = async () => {
+    if (!id) {
+      toast.error("ID produk tidak ditemukan");
+      navigate("/products", { replace: true });
+      return;
+    }
+
     try {
-      const data = await api.get("product/" + id);
-      console.log(data);
-    } catch (err: any) {
-      console.log(err);
+      setLoadingProduct(true);
+      const product = await services.getProduct(id);
+
+      setInitialSku(product.product_sku);
+      reset({
+        ...product,
+        cost_price: Number(product.cost_price),
+        selling_price: Number(product.selling_price),
+        stock: Number(product.stock),
+        minimum_stock: Number(product.minimum_stock),
+      });
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 404) {
+        toast.error("Produk tidak ditemukan");
+      } else {
+        toast.error("Gagal memuat data produk");
+      }
+
+      navigate("/products", { replace: true });
+    } finally {
+      setLoadingProduct(false);
     }
   };
 
   useEffect(() => {
-    document.title = "Tambah Data Produk | EStock";
+    document.title = "Edit Data Produk | EStock";
     fetchProductData();
-  }, []);
+  }, [id]);
 
   return (
     <>
@@ -163,6 +194,11 @@ const EditProduct = () => {
                 className="grid grid-cols-1 gap-4 px-6 py-5 md:grid-cols-12"
               >
                 <Toaster />
+                {loadingProduct ? (
+                  <div className="md:col-span-12 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                    Memuat data produk...
+                  </div>
+                ) : null}
                 <div className="md:col-span-4">
                   <InputField
                     label="SKU Produk"
@@ -311,11 +347,15 @@ const EditProduct = () => {
                 <div className="md:col-span-12">
                   <button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || loadingProduct}
                     className={`rounded-lg flex gap-1 items-center justify-center shadow bg-red-500 hover:bg-red-600 p-3 w-full text-white cursor-pointer active:scale-95 transition-transform disabled:cursor-not-allowed disabled:bg-red-300 disabled:scale-100`}
                   >
-                    {isSubmitting ? <Spinner size="sm" /> : null}
-                    Simpan
+                    {isSubmitting || loadingProduct ? <Spinner size="sm" /> : null}
+                    {isSubmitting
+                      ? "Menyimpan..."
+                      : loadingProduct
+                        ? "Menyiapkan Form..."
+                        : "Simpan"}
                   </button>
                 </div>
               </form>
