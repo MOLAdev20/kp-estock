@@ -3,6 +3,7 @@ import ProductPage from "./pages/Product.tsx";
 import AddProduct from "./pages/AddProduct.tsx";
 import EditProduct from "./pages/EditProduct.tsx";
 import LoginPage from "./pages/Login.tsx";
+import TransactionPage from "./pages/Transaction.tsx";
 import ProtectedRoute from "./components/routes/ProtectedRoute.tsx";
 import AuthRedirectListener from "./components/routes/AuthRedirectListener.tsx";
 
@@ -33,6 +34,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <EditProduct />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/transaction"
+          element={
+            <ProtectedRoute>
+              <TransactionPage />
             </ProtectedRoute>
           }
         />

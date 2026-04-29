@@ -12,6 +12,8 @@ export type Product = {
   minimum_stock: number;
   rack: string;
   description: string;
+  image_url?: string | null;
+  image?: string | null;
 };
 
 export type InputFieldProps = {
