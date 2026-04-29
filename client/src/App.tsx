@@ -6,6 +6,7 @@ import LoginPage from "./pages/Login.tsx";
 import TransactionPage from "./pages/Transaction.tsx";
 import TransactionCreatePage from "./pages/TransactionCreate.tsx";
 import TransactionSummaryPage from "./pages/TransactionSummary.tsx";
+import StockManagementPage from "./pages/StockManagement.tsx";
 import ProtectedRoute from "./components/routes/ProtectedRoute.tsx";
 import AuthRedirectListener from "./components/routes/AuthRedirectListener.tsx";
 
@@ -60,6 +61,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <TransactionSummaryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stock-management"
+          element={
+            <ProtectedRoute>
+              <StockManagementPage />
             </ProtectedRoute>
           }
         />

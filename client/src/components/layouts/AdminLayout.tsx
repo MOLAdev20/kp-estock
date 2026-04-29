@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { Menu, Database, Calculator } from "lucide-react";
+import { Menu, Database, Calculator, Warehouse } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 const AdminLayout = ({ children }: { children: ReactNode }) => {
@@ -71,6 +71,20 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
             >
               <Calculator size={18} />
               <span>Transaksi</span>
+            </NavLink>
+            <NavLink
+              to="/stock-management"
+              onClick={() => setMobileSidebarOpen(false)}
+              className={({ isActive }) =>
+                `py-2 px-3 flex items-center gap-1 rounded-md transition-colors ${
+                  isActive
+                    ? "bg-red-500 text-white"
+                    : "text-slate-700 hover:text-white hover:bg-red-500"
+                }`
+              }
+            >
+              <Warehouse size={18} />
+              <span>Stock Management</span>
             </NavLink>
           </div>
         </div>

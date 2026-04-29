@@ -55,3 +55,14 @@ export type LoginResponse = {
     refreshToken: string;
   };
 };
+
+export type StockStatus = "safe" | "low" | "critical";
+
+export type StockManagementProduct = {
+  uuid: string;
+  productTitle: string;
+  sellingPrice: number;
+  stock: number;
+  minimumStock: number;
+  stockStatus: StockStatus;
+};
