@@ -1,6 +1,7 @@
 import type { UseFormRegisterReturn, FieldError } from "react-hook-form";
 
 export type Product = {
+  id?: number;
   uuid: string;
   product_sku: string;
   product_title: string;
