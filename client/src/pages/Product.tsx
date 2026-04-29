@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { ChevronRight, Home, Pencil, Plus, Trash2 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
+import { Link } from "react-router-dom";
+import { isAxiosError } from "axios";
 import AdminLayout from "../components/layouts/AdminLayout";
 import type { Product } from "../types";
 import services from "../services/productServices";
@@ -20,6 +22,10 @@ const ProductPage = () => {
       const products = await services.getProducts();
       setData(products);
     } catch (error) {
+      if (isAxiosError(error) && error.response?.status === 401) {
+        return;
+      }
+
       toast.error("Gagal Memuat Data");
       console.log(error);
     } finally {
@@ -62,13 +68,13 @@ const ProductPage = () => {
       </div>
       <Toaster />
       <div className="mt-8 h-full">
-        <a
-          href="/add-product"
+        <Link
+          to="/add-product"
           className="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-red-600 active:scale-95"
         >
           <Plus size={16} />
           Tambah
-        </a>
+        </Link>
         <div className="bg-white mt-3 rounded-lg shadow">
           <div className="p-1 bg-red-500 rounded-t text-white text-sm">
             <h1>Tabel Produk</h1>
@@ -145,13 +151,13 @@ const ProductPage = () => {
                           {item.stock}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
-                          <a
-                            href="/edit-product"
+                          <Link
+                            to={`/edit-product/${item.uuid}`}
                             className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-3 py-1.5 text-blue-600 transition-colors hover:bg-blue-50"
                           >
                             <Pencil size={14} />
                             Edit
-                          </a>
+                          </Link>
                           <button
                             type="button"
                             className="ml-2 inline-flex cursor-pointer items-center gap-1 rounded-md border border-slate-200 px-3 py-1.5 text-red-600 transition-colors hover:bg-red-50"

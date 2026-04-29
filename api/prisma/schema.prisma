@@ -29,3 +29,21 @@ model product {
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
 }
+
+enum UserRole {
+  SUPER_ADMIN @map("super-admin")
+  STAFF @map("staff")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  username String @unique
+  email String @unique
+  password String @unique
+  refresh_token String? @db.Text
+  role UserRole
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  @@map("users")
+}

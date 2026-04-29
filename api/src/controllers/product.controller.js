@@ -46,6 +46,40 @@ const productController = {
 
     },
 
+    updateOne: async (req, res) => {
+        const { uuid } = req.params
+
+        const data = {
+            product_sku: req.body.product_sku,
+            product_title: req.body.product_title,
+            category: req.body.category,
+            unit: req.body.unit,
+            cost_price: Number(req.body.cost_price),
+            selling_price: Number(req.body.selling_price),
+            stock: Number(req.body.stock),
+            minimum_stock: Number(req.body.minimum_stock),
+            rack: req.body.rack,
+            description: req.body.description
+        }
+
+        try{
+            const updatedProduct = await prisma.product.update({
+                where: { uuid },
+                data
+            })
+
+            res.json({
+                message: "Product updated successfully",
+                data: updatedProduct
+            })
+        }catch(err){
+            res.status(500).json({
+                message: "Error updating product",
+                err: err.message
+            })
+        }
+    },
+
     deleteOne: async(req, res) => {
         try{
             await prisma.product.delete({
@@ -74,12 +108,12 @@ const productController = {
             })
 
             if(product){
-                res.status(409).json({
+                return res.status(409).json({
                     message: "Product SKU already exists"
                 })
             }
 
-            res.json({
+            return res.json({
                 message: "Product SKU available"
             })
 
@@ -97,14 +131,22 @@ const productController = {
         const {id} = req.params
 
         try{
-            const product = await prisma.product.findFirstOrThrow({
-                id
+            const product = await prisma.product.findUnique({
+                where: { uuid: id }
             })
-            res.json({
+
+            if(!product){
+                return res.status(404).json({
+                    message: "Product not found"
+                })
+            }
+
+            return res.json({
                 data: product
             })
         }catch(err){
-            res.status(500).json({
+            return res.status(500).json({
+                message: "Error getting product detail",
                 err: err.message
             })
         }

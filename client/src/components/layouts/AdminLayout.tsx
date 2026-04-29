@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Menu, Database, Calculator } from "lucide-react";
+import { NavLink } from "react-router-dom";
 
 const AdminLayout = ({ children }: { children: ReactNode }) => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -43,20 +44,34 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
         >
           <h1 className="text-sm">Menu</h1>
           <div className="mt-3 flex flex-col gap-1">
-            <a
-              href="#"
-              className="py-2 px-3 text-slate-700 flex items-center gap-1 rounded-md hover:text-white hover:bg-red-500 transition-colors"
+            <NavLink
+              to="/products"
+              onClick={() => setMobileSidebarOpen(false)}
+              className={({ isActive }) =>
+                `py-2 px-3 flex items-center gap-1 rounded-md transition-colors ${
+                  isActive
+                    ? "bg-red-500 text-white"
+                    : "text-slate-700 hover:text-white hover:bg-red-500"
+                }`
+              }
             >
               <Database size={18} />
               <span>Master Produk</span>
-            </a>
-            <a
-              href="#"
-              className="py-2 px-3 text-slate-700 flex items-center gap-1 rounded-md hover:text-white hover:bg-red-500 transition-colors"
+            </NavLink>
+            <NavLink
+              to="/transaction"
+              onClick={() => setMobileSidebarOpen(false)}
+              className={({ isActive }) =>
+                `py-2 px-3 flex items-center gap-1 rounded-md transition-colors ${
+                  isActive
+                    ? "bg-red-500 text-white"
+                    : "text-slate-700 hover:text-white hover:bg-red-500"
+                }`
+              }
             >
               <Calculator size={18} />
-              <span>Stok Opname</span>
-            </a>
+              <span>Transaksi</span>
+            </NavLink>
           </div>
         </div>
         {/* End of Sidebar */}

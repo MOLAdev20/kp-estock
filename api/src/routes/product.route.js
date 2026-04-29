@@ -7,6 +7,7 @@ route.get("/", productController.getAll)
 route.get("/check-sku/:sku", productController.validateSku)
 route.get("/:id", productController.getById)
 route.post("/new", productController.createOne)
+route.put("/update/:uuid", productController.updateOne)
 route.delete("/delete/:uuid", productController.deleteOne)
 
 export default route

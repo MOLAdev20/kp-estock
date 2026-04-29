@@ -12,6 +12,8 @@ export type Product = {
   minimum_stock: number;
   rack: string;
   description: string;
+  image_url?: string | null;
+  image?: string | null;
 };
 
 export type InputFieldProps = {
@@ -31,3 +33,24 @@ export type SelectOptionProps = {
   options: {value: string, label: string}[];
   error?: FieldError;
 }
+
+export type AuthUser = {
+  id: string | number;
+  username: string;
+  role: string;
+};
+
+export type LoginPayload = {
+  username: string;
+  password: string;
+};
+
+export type LoginResponse = {
+  success: boolean;
+  message: string;
+  data: {
+    user: AuthUser;
+    accessToken: string;
+    refreshToken: string;
+  };
+};
