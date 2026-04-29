@@ -28,11 +28,17 @@ model product {
   status Boolean @default(true)
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
+  transaction_items TransactionItem[]
 }
 
 enum UserRole {
   SUPER_ADMIN @map("super-admin")
   STAFF @map("staff")
+}
+
+enum DiscountType {
+  percent
+  nominal
 }
 
 model User {
@@ -44,6 +50,39 @@ model User {
   role UserRole
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
+  transactions Transaction[]
 
   @@map("users")
+}
+
+model Transaction {
+  id Int @id @default(autoincrement())
+  user_id Int
+  transaction_code String @unique
+  total_price Decimal @db.Decimal(15, 2)
+  discount_type DiscountType
+  discount_amount Decimal @db.Decimal(15, 2)
+  grand_total Decimal @db.Decimal(15, 2)
+  payment_method String
+  created_at DateTime @default(now())
+  user User @relation(fields: [user_id], references: [id])
+  transaction_items TransactionItem[]
+
+  @@index([user_id])
+  @@map("transactions")
+}
+
+model TransactionItem {
+  id Int @id @default(autoincrement())
+  transaction_id Int
+  product_id Int
+  unit_price Decimal @db.Decimal(15, 2)
+  qty Int
+  total Decimal @db.Decimal(15, 2)
+  transaction Transaction @relation(fields: [transaction_id], references: [id])
+  product product @relation(fields: [product_id], references: [id])
+
+  @@index([transaction_id])
+  @@index([product_id])
+  @@map("transaction_items")
 }

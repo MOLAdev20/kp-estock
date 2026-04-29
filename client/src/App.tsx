@@ -4,6 +4,8 @@ import AddProduct from "./pages/AddProduct.tsx";
 import EditProduct from "./pages/EditProduct.tsx";
 import LoginPage from "./pages/Login.tsx";
 import TransactionPage from "./pages/Transaction.tsx";
+import TransactionCreatePage from "./pages/TransactionCreate.tsx";
+import TransactionSummaryPage from "./pages/TransactionSummary.tsx";
 import ProtectedRoute from "./components/routes/ProtectedRoute.tsx";
 import AuthRedirectListener from "./components/routes/AuthRedirectListener.tsx";
 
@@ -42,6 +44,22 @@ const App = () => {
           element={
             <ProtectedRoute>
               <TransactionPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/transaction/create"
+          element={
+            <ProtectedRoute>
+              <TransactionCreatePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/transaction/:id"
+          element={
+            <ProtectedRoute>
+              <TransactionSummaryPage />
             </ProtectedRoute>
           }
         />
