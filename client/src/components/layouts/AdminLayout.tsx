@@ -5,11 +5,24 @@ import {
   Calculator,
   Warehouse,
   LayoutDashboard,
+  Users,
+  LogOut,
 } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import { isSuperAdminRole } from "../../utils/role";
 
 const AdminLayout = ({ children }: { children: ReactNode }) => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user, clearAuthSession } = useAuth();
+  const showUserManagementMenu = isSuperAdminRole(user?.role);
+
+  const handleLogout = () => {
+    clearAuthSession();
+    setMobileSidebarOpen(false);
+    navigate("/", { replace: true });
+  };
 
   return (
     <>
@@ -106,6 +119,30 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
               <Warehouse size={18} />
               <span>Stock Management</span>
             </NavLink>
+            {showUserManagementMenu ? (
+              <NavLink
+                to="/users"
+                onClick={() => setMobileSidebarOpen(false)}
+                className={({ isActive }) =>
+                  `py-2 px-3 flex items-center gap-1 rounded-md transition-colors ${
+                    isActive
+                      ? "bg-red-500 text-white"
+                      : "text-slate-700 hover:text-white hover:bg-red-500"
+                  }`
+                }
+              >
+                <Users size={18} />
+                <span>Manajemen User</span>
+              </NavLink>
+            ) : null}
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="py-2 px-3 text-slate-700 hover:text-white hover:bg-red-500 transition-colors flex items-center gap-1 rounded-md cursor-pointer text-left"
+            >
+              <LogOut size={18} />
+              <span>Logout</span>
+            </button>
           </div>
         </div>
         {/* End of Sidebar */}
