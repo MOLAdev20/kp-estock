@@ -66,3 +66,37 @@ export type StockManagementProduct = {
   minimumStock: number;
   stockStatus: StockStatus;
 };
+
+export type DashboardSummary = {
+  totalProducts: number;
+  todayRevenue: number;
+  monthlyRevenue: number;
+  lowStockProducts: number;
+};
+
+export type DashboardTopSellingProduct = {
+  productId: number;
+  productUuid: string;
+  productTitle: string;
+  totalQty: number;
+  totalRevenue: number;
+};
+
+export type DashboardMonthlyRevenue = {
+  month: number;
+  monthLabel: string;
+  totalRevenue: number;
+  totalTransactions: number;
+};
+
+export type DashboardAnnualInsight = {
+  year: number;
+  totalRevenue: number;
+  monthlyRevenueSeries: DashboardMonthlyRevenue[];
+};
+
+export type DashboardOverview = {
+  summary: DashboardSummary;
+  topSellingProducts: DashboardTopSellingProduct[];
+  annual: DashboardAnnualInsight;
+};
