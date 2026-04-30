@@ -1,5 +1,11 @@
 import { useState, type ReactNode } from "react";
-import { Menu, Database, Calculator, Warehouse } from "lucide-react";
+import {
+  Menu,
+  Database,
+  Calculator,
+  Warehouse,
+  LayoutDashboard,
+} from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 const AdminLayout = ({ children }: { children: ReactNode }) => {
@@ -44,6 +50,20 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
         >
           <h1 className="text-sm">Menu</h1>
           <div className="mt-3 flex flex-col gap-1">
+            <NavLink
+              to="/dashboard"
+              onClick={() => setMobileSidebarOpen(false)}
+              className={({ isActive }) =>
+                `py-2 px-3 flex items-center gap-1 rounded-md transition-colors ${
+                  isActive
+                    ? "bg-red-500 text-white"
+                    : "text-slate-700 hover:text-white hover:bg-red-500"
+                }`
+              }
+            >
+              <LayoutDashboard size={18} />
+              <span>Dashboard</span>
+            </NavLink>
             <NavLink
               to="/products"
               onClick={() => setMobileSidebarOpen(false)}
