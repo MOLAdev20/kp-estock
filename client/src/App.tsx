@@ -9,7 +9,9 @@ import TransactionSummaryPage from "./pages/TransactionSummary.tsx";
 import StockManagementPage from "./pages/StockManagement.tsx";
 import DashboardPage from "./pages/Dashboard.tsx";
 import ProtectedRoute from "./components/routes/ProtectedRoute.tsx";
+import SuperAdminRoute from "./components/routes/SuperAdminRoute.tsx";
 import AuthRedirectListener from "./components/routes/AuthRedirectListener.tsx";
+import UserManagementPage from "./pages/UserManagement.tsx";
 
 const App = () => {
   return (
@@ -79,6 +81,14 @@ const App = () => {
             <ProtectedRoute>
               <StockManagementPage />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <SuperAdminRoute>
+              <UserManagementPage />
+            </SuperAdminRoute>
           }
         />
       </Routes>
