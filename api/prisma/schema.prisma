@@ -25,6 +25,7 @@ model product {
   minimum_stock Int
   rack String
   description String @db.LongText
+  thumbnail String? @db.LongText
   status Boolean @default(true)
   created_at DateTime @default(now())
   updated_at DateTime @default(now())

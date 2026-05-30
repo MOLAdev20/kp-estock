@@ -54,7 +54,7 @@ const userService = {
     });
 
     if (!user || user.password !== password) {
-      throw buildServiceError("wrong username or password", 401);
+      throw buildServiceError("USER_NOT_FOUND", 401);
     }
 
     const accessToken = await signAccessToken(user);
@@ -102,7 +102,14 @@ const userService = {
 
     const accessToken = await signAccessToken(user);
 
-    return { accessToken };
+    return {
+      accessToken,
+      user: {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+      },
+    };
   },
 
   logout: async (refreshToken) => {

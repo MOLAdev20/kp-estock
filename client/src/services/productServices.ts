@@ -23,6 +23,19 @@ const services = {
     updateProduct: async (uuid: string, payload: Product): Promise<Product> => {
         const response = await api.put("/product/update/" + uuid, payload)
         return response.data.data
+    },
+
+    uploadThumbnail: async (uuid: string, file: File): Promise<Product> => {
+        const formData = new FormData()
+        formData.append("thumbnail", file)
+
+        const response = await api.post("/product/" + uuid + "/thumbnail", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        })
+
+        return response.data.data
     }
 }
 

@@ -13,6 +13,7 @@ export type Product = {
   minimum_stock: number;
   rack: string;
   description: string;
+  thumbnail?: string | null;
   image_url?: string | null;
   image?: string | null;
 };
@@ -52,7 +53,15 @@ export type LoginResponse = {
   data: {
     user: AuthUser;
     accessToken: string;
-    refreshToken: string;
+  };
+};
+
+export type RefreshSessionResponse = {
+  success: boolean;
+  message: string;
+  data: {
+    user: AuthUser;
+    accessToken: string;
   };
 };
 

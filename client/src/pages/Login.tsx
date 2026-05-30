@@ -5,6 +5,7 @@ import { Toaster, toast } from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 import authServices from "../services/authServices";
 import { useAuth } from "../contexts/AuthContext";
+import { clearSkipAuthRedirectMessage } from "../utils/authRedirect";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     document.title = "Login | EStock";
+    clearSkipAuthRedirectMessage();
   }, []);
 
   useEffect(() => {
@@ -66,11 +68,16 @@ const LoginPage = () => {
       });
 
       toast.success("Login berhasil");
-      navigate("/products", { replace: true });
+      navigate("/dashboard", { replace: true });
     } catch (error) {
       if (isAxiosError(error)) {
         const message = error.response?.data?.message;
-        toast.error(message || "Terjadi kesalahan saat login");
+        const humanMessage =
+          message === "USER_NOT_FOUND"
+            ? "Username atau kata sandi salah"
+            : message || "Terjadi kesalahan saat login";
+
+        toast.error(humanMessage);
         return;
       }
 

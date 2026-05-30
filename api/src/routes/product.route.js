@@ -1,10 +1,12 @@
 import { Router } from "express";
 import productController from "../controllers/product.controller.js";
+import uploadProductThumbnail from "../middlewares/product_thumbnail_upload.middleware.js";
 
 const route = Router();
 
 route.get("/", productController.getAll)
 route.get("/check-sku/:sku", productController.validateSku)
+route.post("/:uuid/thumbnail", uploadProductThumbnail.single("thumbnail"), productController.uploadThumbnail)
 route.get("/:id", productController.getById)
 route.post("/new", productController.createOne)
 route.put("/update/:uuid", productController.updateOne)

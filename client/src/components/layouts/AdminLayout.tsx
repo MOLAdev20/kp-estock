@@ -8,18 +8,47 @@ import {
   Users,
   LogOut,
 } from "lucide-react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { isSuperAdminRole } from "../../utils/role";
+import { markSkipAuthRedirectMessage } from "../../utils/authRedirect";
 
 const AdminLayout = ({ children }: { children: ReactNode }) => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const location = useLocation();
   const navigate = useNavigate();
-  const { user, clearAuthSession } = useAuth();
+  const { user, logout } = useAuth();
   const showUserManagementMenu = isSuperAdminRole(user?.role);
 
-  const handleLogout = () => {
-    clearAuthSession();
+  const pathname = location.pathname;
+  const isDashboardActive = pathname === "/dashboard";
+  const isProductActive =
+    pathname === "/products" ||
+    pathname === "/add-product" ||
+    pathname.startsWith("/edit-product/");
+  const isTransactionActive =
+    pathname === "/transaction" ||
+    pathname === "/transaction/create" ||
+    /^\/transaction\/[^/]+$/.test(pathname);
+  const isStockManagementActive = pathname === "/stock-management";
+  const isUserManagementActive = pathname === "/users";
+
+  const getMenuClassName = (isActive: boolean) =>
+    `py-2 px-3 flex items-center gap-1 rounded-md transition-colors ${
+      isActive
+        ? "bg-red-500 text-white"
+        : "text-slate-700 hover:text-white hover:bg-red-500"
+    }`;
+
+  const handleLogout = async () => {
+    const confirmLogout = window.confirm("Apakah anda yakin ingin logout?");
+
+    if (!confirmLogout) {
+      return;
+    }
+
+    markSkipAuthRedirectMessage();
+    await logout();
     setMobileSidebarOpen(false);
     navigate("/", { replace: true });
   };
@@ -66,13 +95,7 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
             <NavLink
               to="/dashboard"
               onClick={() => setMobileSidebarOpen(false)}
-              className={({ isActive }) =>
-                `py-2 px-3 flex items-center gap-1 rounded-md transition-colors ${
-                  isActive
-                    ? "bg-red-500 text-white"
-                    : "text-slate-700 hover:text-white hover:bg-red-500"
-                }`
-              }
+              className={() => getMenuClassName(isDashboardActive)}
             >
               <LayoutDashboard size={18} />
               <span>Dashboard</span>
@@ -80,13 +103,7 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
             <NavLink
               to="/products"
               onClick={() => setMobileSidebarOpen(false)}
-              className={({ isActive }) =>
-                `py-2 px-3 flex items-center gap-1 rounded-md transition-colors ${
-                  isActive
-                    ? "bg-red-500 text-white"
-                    : "text-slate-700 hover:text-white hover:bg-red-500"
-                }`
-              }
+              className={() => getMenuClassName(isProductActive)}
             >
               <Database size={18} />
               <span>Master Produk</span>
@@ -94,13 +111,7 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
             <NavLink
               to="/transaction"
               onClick={() => setMobileSidebarOpen(false)}
-              className={({ isActive }) =>
-                `py-2 px-3 flex items-center gap-1 rounded-md transition-colors ${
-                  isActive
-                    ? "bg-red-500 text-white"
-                    : "text-slate-700 hover:text-white hover:bg-red-500"
-                }`
-              }
+              className={() => getMenuClassName(isTransactionActive)}
             >
               <Calculator size={18} />
               <span>Transaksi</span>
@@ -108,13 +119,7 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
             <NavLink
               to="/stock-management"
               onClick={() => setMobileSidebarOpen(false)}
-              className={({ isActive }) =>
-                `py-2 px-3 flex items-center gap-1 rounded-md transition-colors ${
-                  isActive
-                    ? "bg-red-500 text-white"
-                    : "text-slate-700 hover:text-white hover:bg-red-500"
-                }`
-              }
+              className={() => getMenuClassName(isStockManagementActive)}
             >
               <Warehouse size={18} />
               <span>Stock Management</span>
@@ -123,13 +128,7 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
               <NavLink
                 to="/users"
                 onClick={() => setMobileSidebarOpen(false)}
-                className={({ isActive }) =>
-                  `py-2 px-3 flex items-center gap-1 rounded-md transition-colors ${
-                    isActive
-                      ? "bg-red-500 text-white"
-                      : "text-slate-700 hover:text-white hover:bg-red-500"
-                  }`
-                }
+                className={() => getMenuClassName(isUserManagementActive)}
               >
                 <Users size={18} />
                 <span>Manajemen User</span>

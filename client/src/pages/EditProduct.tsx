@@ -1,10 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import {
-  Calculator,
   ChevronRight,
-  Database,
   Home,
-  Menu,
+  ImagePlus,
   NotebookPen,
 } from "lucide-react";
 import { useForm, type SubmitHandler } from "react-hook-form";
@@ -15,25 +13,44 @@ import type { Product } from "../types";
 import { InputField, SelectOption } from "../components/ui/InputField";
 import { useNavigate, useParams } from "react-router-dom";
 import services from "../services/productServices";
+import AdminLayout from "../components/layouts/AdminLayout";
 
 const EditProduct = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
   const [loadingProduct, setLoadingProduct] = useState<boolean>(false);
+  const [uploadingThumbnail, setUploadingThumbnail] = useState<boolean>(false);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string>("");
   const [initialSku, setInitialSku] = useState<string>("");
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     watch,
     formState: { errors, isSubmitting },
   } = useForm<Product>({
     mode: "onSubmit",
     reValidateMode: "onBlur",
   });
+
+  const getThumbnailPreviewUrl = (thumbnail: string | null | undefined) => {
+    if (!thumbnail) {
+      return "";
+    }
+
+    if (thumbnail.startsWith("http://") || thumbnail.startsWith("https://")) {
+      return thumbnail;
+    }
+
+    try {
+      return new URL(thumbnail, import.meta.env.VITE_API_URL).toString();
+    } catch {
+      return thumbnail;
+    }
+  };
 
   const onSubmit: SubmitHandler<Product> = async (data) => {
     if (!id) {
@@ -79,6 +96,7 @@ const EditProduct = () => {
       const product = await services.getProduct(id);
 
       setInitialSku(product.product_sku);
+      setThumbnailPreview(getThumbnailPreviewUrl(product.thumbnail));
       reset({
         ...product,
         cost_price: Number(product.cost_price),
@@ -99,107 +117,135 @@ const EditProduct = () => {
     }
   };
 
+  const handleThumbnailUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (!file || !id) {
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("File harus berupa gambar");
+      event.target.value = "";
+      return;
+    }
+
+    try {
+      setUploadingThumbnail(true);
+      const updatedProduct = await services.uploadThumbnail(id, file);
+      const latestThumbnail = updatedProduct.thumbnail ?? null;
+
+      setValue("thumbnail", latestThumbnail);
+      setThumbnailPreview(getThumbnailPreviewUrl(latestThumbnail));
+      toast.success("Foto produk berhasil diupload");
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 413) {
+        toast.error("Ukuran foto maksimal 2MB");
+      } else if (isAxiosError(err) && err.response?.status === 415) {
+        toast.error("Format foto harus JPG, PNG, atau WEBP");
+      } else if (isAxiosError(err) && err.response?.status === 404) {
+        toast.error("Produk tidak ditemukan");
+      } else {
+        toast.error("Gagal upload foto produk");
+      }
+    } finally {
+      setUploadingThumbnail(false);
+      event.target.value = "";
+    }
+  };
+
   useEffect(() => {
     document.title = "Edit Data Produk | EStock";
     fetchProductData();
   }, [id]);
 
   return (
-    <>
-      {/* Topbar */}
-      <div className="fixed h-14 z-40 left-0 shadow bg-white inset-x-0 px-5 ">
-        <div className="flex gap-2 items-center justify-between">
-          <div className="leading-none">
-            <div className="text-2xl font-medium flex gap-1">
-              <span className="text-red-500 font-bold">E</span>
-              <span>Stock</span>
-            </div>
-            <small className="text-xs text-slate-500">
-              Sistem Manajemen Stok Opname
-            </small>
+    <AdminLayout>
+      <div className="sm:flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-4 flex items-center justify-center bg-red-500 shadow rounded-lg text-white">
+            <NotebookPen size={20} />
           </div>
-          <button
-            className="cursor-pointer active:scale-90 p-1 bg-slate-100 rounded block sm:hidden"
-            onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-          >
-            <Menu size={24} />
-          </button>
+          <div>
+            <h1 className="text-4xl">Edit Produk</h1>
+            <small>Edit data produk di sini</small>
+          </div>
+        </div>
+        <div className="flex items-center gap-1 mt-2 text-sm">
+          <Home size={18} />
+          <ChevronRight size={18} />
+          <span>Master Produk</span>
         </div>
       </div>
-      {/* End of Topbar */}
-
-      {/* Wrapper */}
-      <div className="flex">
-        {/* Overlay */}
-        <div
-          className={`absolute inset-0 bg-black opacity-30 z-10 ${mobileSidebarOpen ? "block" : "hidden"}`}
-          onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-        />
-        {/* End of Overlay */}
-
-        {/* Sidebar */}
-        <div
-          className={`w-64 p-5 mt-14 h-screen bg-white shadow fixed z-20 ${mobileSidebarOpen ? " md:translate-x-0" : "md:translate-x-0 -translate-x-full"} transition-transform`}
-        >
-          <h1 className="text-sm">Menu</h1>
-          <div className="mt-3 flex flex-col gap-1">
-            <a
-              href="#"
-              className="py-2 px-3 text-slate-700 flex items-center gap-1 rounded-md hover:text-white hover:bg-red-500 transition-colors"
-            >
-              <Database size={18} />
-              <span>Master Produk</span>
-            </a>
-            <a
-              href="#"
-              className="py-2 px-3 text-slate-700 flex items-center gap-1 rounded-md hover:text-white hover:bg-red-500 transition-colors"
-            >
-              <Calculator size={18} />
-              <span>Stok Opname</span>
-            </a>
-          </div>
+      <div className="mt-8 rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-100 px-6 py-4">
+          <h2 className="text-base font-semibold text-slate-800">
+            Detail Produk
+          </h2>
+          <p className="text-xs text-slate-500">
+            Lengkapi informasi utama produk untuk stok yang rapi.
+          </p>
         </div>
-        {/* End of Sidebar */}
-
-        {/* Content */}
-        <div className="bg-slate-50 mt-14 md:ml-64 w-full">
-          <div className="p-5">
-            <div className="sm:flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-4 flex items-center justify-center bg-red-500 shadow rounded-lg text-white">
-                  <NotebookPen size={20} />
-                </div>
-                <div>
-                  <h1 className="text-4xl">Edit Produk</h1>
-                  <small>Edit data produk di sini</small>
-                </div>
-              </div>
-              <div className="flex items-center gap-1 mt-2 text-sm">
-                <Home size={18} />
-                <ChevronRight size={18} />
-                <span>Master Produk</span>
-              </div>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="grid grid-cols-1 gap-4 px-6 py-5 md:grid-cols-12"
+        >
+          <Toaster />
+          {loadingProduct ? (
+            <div className="md:col-span-12 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+              Memuat data produk...
             </div>
-            <div className="mt-8 rounded-xl border border-slate-200 bg-white shadow-sm">
-              <div className="border-b border-slate-100 px-6 py-4">
-                <h2 className="text-base font-semibold text-slate-800">
-                  Detail Produk
-                </h2>
-                <p className="text-xs text-slate-500">
-                  Lengkapi informasi utama produk untuk stok yang rapi.
-                </p>
-              </div>
-              <form
-                onSubmit={handleSubmit(onSubmit)}
-                className="grid grid-cols-1 gap-4 px-6 py-5 md:grid-cols-12"
-              >
-                <Toaster />
-                {loadingProduct ? (
-                  <div className="md:col-span-12 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                    Memuat data produk...
+          ) : null}
+          <div className="md:col-span-12 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                  <h3 className="text-sm font-semibold text-slate-800">
+                    Foto Produk
+                  </h3>
+                  <div className="mt-3 flex flex-col gap-4 md:flex-row md:items-center">
+                    <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-lg border border-slate-300 bg-white text-xs text-slate-500">
+                      {thumbnailPreview ? (
+                        <img
+                          src={thumbnailPreview}
+                          alt="Thumbnail produk"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span>Belum ada foto</span>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <label
+                        htmlFor="thumbnail-upload"
+                        className="mb-1.5 block text-sm font-medium text-slate-700"
+                      >
+                        Upload Thumbnail
+                      </label>
+                      <input
+                        id="thumbnail-upload"
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        onChange={handleThumbnailUpload}
+                        disabled={loadingProduct || uploadingThumbnail}
+                        className="w-full cursor-pointer rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-slate-700 hover:border-slate-400 disabled:cursor-not-allowed disabled:bg-slate-100"
+                      />
+                      <p className="mt-1 text-xs text-slate-500">
+                        Format JPG, PNG, WEBP. Maksimal 2MB.
+                      </p>
+                      {uploadingThumbnail ? (
+                        <div className="mt-2 inline-flex items-center gap-2 text-sm text-slate-600">
+                          <Spinner size="sm" />
+                          Mengupload foto...
+                        </div>
+                      ) : null}
+                    </div>
+                    <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600">
+                      <div className="flex items-center gap-1">
+                        <ImagePlus size={14} />
+                        <span>Upload setelah produk tersimpan.</span>
+                      </div>
+                    </div>
                   </div>
-                ) : null}
-                <div className="md:col-span-4">
+          </div>
+          <div className="md:col-span-4">
                   <InputField
                     label="SKU Produk"
                     type="text"
@@ -210,8 +256,8 @@ const EditProduct = () => {
                     })}
                     error={errors.product_sku}
                   />
-                </div>
-                <div className="md:col-span-4">
+          </div>
+          <div className="md:col-span-4">
                   <InputField
                     label="Nama Produk"
                     type="text"
@@ -221,8 +267,8 @@ const EditProduct = () => {
                     })}
                     error={errors.product_title}
                   />
-                </div>
-                <div className="md:col-span-4">
+          </div>
+          <div className="md:col-span-4">
                   <SelectOption
                     label="Kategori"
                     id="product-category"
@@ -235,8 +281,8 @@ const EditProduct = () => {
                     ]}
                     error={errors.category}
                   />
-                </div>
-                <div className="md:col-span-4">
+          </div>
+          <div className="md:col-span-4">
                   <label
                     htmlFor="product-unit"
                     className="block text-sm font-medium text-slate-700 mb-1.5"
@@ -263,8 +309,8 @@ const EditProduct = () => {
                       {errors.unit.message}
                     </small>
                   )}
-                </div>
-                <div className="md:col-span-4">
+          </div>
+          <div className="md:col-span-4">
                   <InputField
                     label="Harga Beli"
                     type="number"
@@ -275,8 +321,8 @@ const EditProduct = () => {
                     error={errors.cost_price}
                     currencyPrefix="Rp"
                   />
-                </div>
-                <div className="md:col-span-4">
+          </div>
+          <div className="md:col-span-4">
                   <InputField
                     label="Harga Jual"
                     type="number"
@@ -291,8 +337,8 @@ const EditProduct = () => {
                     currencyPrefix="Rp"
                     error={errors.selling_price}
                   />
-                </div>
-                <div className="md:col-span-4">
+          </div>
+          <div className="md:col-span-4">
                   <InputField
                     label="Jumlah Stok"
                     id="product-stock"
@@ -303,8 +349,8 @@ const EditProduct = () => {
                     unit={!watch("unit") ? "kg" : watch("unit")}
                     error={errors.stock}
                   />
-                </div>
-                <div className="md:col-span-4">
+          </div>
+          <div className="md:col-span-4">
                   <InputField
                     label="Stok Minimum"
                     id="minimum-stock"
@@ -315,8 +361,8 @@ const EditProduct = () => {
                     error={errors.minimum_stock}
                     unit={!watch("unit") ? "kg" : watch("unit")}
                   />
-                </div>
-                <div className="md:col-span-4">
+          </div>
+          <div className="md:col-span-4">
                   <InputField
                     label="Lokasi Rak"
                     id="rack-location"
@@ -326,8 +372,8 @@ const EditProduct = () => {
                     })}
                     error={errors.rack}
                   />
-                </div>
-                <div className="md:col-span-12">
+          </div>
+          <div className="md:col-span-12">
                   <label
                     htmlFor="product-description"
                     className="block text-sm font-medium text-slate-700 mb-1.5"
@@ -343,29 +389,24 @@ const EditProduct = () => {
                     hover:border-slate-400"
                     placeholder="Berikan deskripsi produk di sini (opsional"
                   ></textarea>
-                </div>
-                <div className="md:col-span-12">
-                  <button
-                    type="submit"
-                    disabled={isSubmitting || loadingProduct}
-                    className={`rounded-lg flex gap-1 items-center justify-center shadow bg-red-500 hover:bg-red-600 p-3 w-full text-white cursor-pointer active:scale-95 transition-transform disabled:cursor-not-allowed disabled:bg-red-300 disabled:scale-100`}
-                  >
-                    {isSubmitting || loadingProduct ? <Spinner size="sm" /> : null}
-                    {isSubmitting
-                      ? "Menyimpan..."
-                      : loadingProduct
-                        ? "Menyiapkan Form..."
-                        : "Simpan"}
-                  </button>
-                </div>
-              </form>
-            </div>
           </div>
-        </div>
-        {/* End of Content */}
+          <div className="md:col-span-12">
+            <button
+              type="submit"
+              disabled={isSubmitting || loadingProduct}
+              className={`rounded-lg flex gap-1 items-center justify-center shadow bg-red-500 hover:bg-red-600 p-3 w-full text-white cursor-pointer active:scale-95 transition-transform disabled:cursor-not-allowed disabled:bg-red-300 disabled:scale-100`}
+            >
+              {isSubmitting || loadingProduct ? <Spinner size="sm" /> : null}
+              {isSubmitting
+                ? "Menyimpan..."
+                : loadingProduct
+                  ? "Menyiapkan Form..."
+                  : "Simpan"}
+            </button>
+          </div>
+        </form>
       </div>
-      {/* End of Wrapper */}
-    </>
+    </AdminLayout>
   );
 };
 

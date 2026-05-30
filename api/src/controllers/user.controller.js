@@ -1,4 +1,10 @@
+import env from "../config/env.js"
 import userService from "../services/user.service.js"
+import {
+    clearRefreshTokenCookie,
+    getRefreshTokenFromRequest,
+    setRefreshTokenCookie,
+} from "../utils/auth-cookie.js"
 
 const userController = {
     login: async (req, res) => {
@@ -14,11 +20,15 @@ const userController = {
 
         try {
             const data = await userService.login({ username, password })
+            setRefreshTokenCookie(res, data.refreshToken, env.AUTH.JWT_REFRESH_EXPIRES_IN)
 
             return res.status(200).json({
                 success: true,
                 message: "login successfully",
-                data,
+                data: {
+                    user: data.user,
+                    accessToken: data.accessToken,
+                },
             })
         } catch (err) {
             return res.status(err.status || 500).json({
@@ -29,12 +39,12 @@ const userController = {
     },
 
     refreshAccessToken: async (req, res) => {
-        const { refreshToken } = req.body || {}
+        const refreshToken = getRefreshTokenFromRequest(req)
 
         if (!refreshToken) {
             return res.status(400).json({
                 success: false,
-                message: "refreshToken is required",
+                message: "refresh token is required",
             })
         }
 
@@ -55,26 +65,25 @@ const userController = {
     },
 
     logout: async (req, res) => {
-        const { refreshToken } = req.body || {}
-
-        if (!refreshToken) {
-            return res.status(400).json({
-                success: false,
-                message: "refreshToken is required",
-            })
-        }
+        const refreshToken = getRefreshTokenFromRequest(req)
 
         try {
-            await userService.logout(refreshToken)
+            if (refreshToken) {
+                await userService.logout(refreshToken)
+            }
+
+            clearRefreshTokenCookie(res, env.AUTH.JWT_REFRESH_EXPIRES_IN)
 
             return res.status(200).json({
                 success: true,
                 message: "logout successfully",
             })
         } catch (err) {
-            return res.status(err.status || 500).json({
-                success: false,
-                message: err.message || "internal server error",
+            clearRefreshTokenCookie(res, env.AUTH.JWT_REFRESH_EXPIRES_IN)
+
+            return res.status(200).json({
+                success: true,
+                message: "logout successfully",
             })
         }
     },

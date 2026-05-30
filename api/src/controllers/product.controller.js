@@ -150,6 +150,37 @@ const productController = {
                 err: err.message
             })
         }
+    },
+
+    uploadThumbnail: async (req, res) => {
+        if (!req.file) {
+            return res.status(400).json({
+                message: "Thumbnail file is required"
+            })
+        }
+
+        const { uuid } = req.params
+        const thumbnailPath = `/uploads/products/${req.file.filename}`
+
+        try {
+            const updatedProduct = await productService.updateThumbnail(uuid, thumbnailPath)
+
+            return res.json({
+                message: "Product thumbnail uploaded successfully",
+                data: updatedProduct
+            })
+        } catch (err) {
+            if (err.statusCode) {
+                return res.status(err.statusCode).json({
+                    message: err.message
+                })
+            }
+
+            return res.status(500).json({
+                message: "Error uploading product thumbnail",
+                err: err.message
+            })
+        }
     }
 }
 
