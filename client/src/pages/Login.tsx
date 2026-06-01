@@ -93,9 +93,9 @@ const LoginPage = () => {
   };
 
   return (
-    <main className="min-h-screen bg-linear-to-b from-red-50 via-white to-white px-4 py-8 sm:px-6">
+    <main className="flex min-h-screen flex-col bg-linear-to-b from-red-50 via-white to-white px-4 py-8 sm:px-6">
       <Toaster position="top-center" />
-      <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-md items-center justify-center">
+      <div className="mx-auto flex w-full max-w-md flex-1 items-center justify-center">
         <section className="w-full rounded-2xl border border-red-100 bg-white p-6 shadow-[0_16px_40px_rgba(15,23,42,0.12)] sm:p-8">
           <div className="mb-6 flex items-center gap-3">
             <div className="rounded-xl bg-red-500 p-2.5 text-white shadow-sm">
@@ -168,6 +168,9 @@ const LoginPage = () => {
           </form>
         </section>
       </div>
+      <footer className="pt-6 text-center text-xs text-slate-400">
+        Copyright 2026 Kelompok 11 Kerja Praktek
+      </footer>
     </main>
   );
 };

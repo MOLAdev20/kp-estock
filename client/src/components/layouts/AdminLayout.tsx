@@ -148,7 +148,12 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
 
         {/* Content */}
         <div className="bg-slate-50 mt-14 md:ml-64 w-full">
-          <div className="p-5">{children}</div>
+          <div className="flex min-h-[calc(100vh-3.5rem)] flex-col p-5">
+            <div>{children}</div>
+            <footer className="mt-auto pt-8 text-center text-xs text-slate-400">
+              Copyright 2026 Kelompok 11 Kerja Praktek
+            </footer>
+          </div>
         </div>
         {/* End of Content */}
       </div>

@@ -25,8 +25,27 @@ const formatCurrency = (value: number) =>
     maximumFractionDigits: 0,
   }).format(value);
 
-const resolveImageUrl = (product: Product) =>
-  product.image_url || product.image || null;
+const resolveImageUrl = (product: Product) => {
+  const imageSource =
+    product.thumbnail || product.image_url || product.image || null;
+
+  if (!imageSource) {
+    return null;
+  }
+
+  if (
+    imageSource.startsWith("http://") ||
+    imageSource.startsWith("https://")
+  ) {
+    return imageSource;
+  }
+
+  try {
+    return new URL(imageSource, import.meta.env.VITE_API_URL).toString();
+  } catch {
+    return imageSource;
+  }
+};
 
 const TransactionCreatePage = () => {
   const navigate = useNavigate();

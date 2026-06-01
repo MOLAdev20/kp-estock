@@ -75,53 +75,42 @@ const ProductPage = () => {
           <Plus size={16} />
           Tambah
         </Link>
-        <div className="bg-white mt-3 rounded-lg shadow">
-          <div className="p-1 bg-red-500 rounded-t text-white text-sm">
-            <h1>Tabel Produk</h1>
+        <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-100 px-4 py-3">
+            <h2 className="text-sm font-semibold text-slate-700">
+              Daftar Produk
+            </h2>
           </div>
-          <div className="min-w-full mt-2 p-3">
-            <div className="border border-table-line overflow-x-auto [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-none [&::-webkit-scrollbar-track]:bg-scrollbar-track [&::-webkit-scrollbar-thumb]:bg-scrollbar-thumb">
-              <table className="min-w-full divide-y divide-table-line">
-                <thead>
-                  <tr>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-start text-xs font-medium text-muted-foreground-1 uppercase"
-                    >
-                      No
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-start text-xs font-medium text-muted-foreground-1 uppercase"
-                    >
-                      SKU
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-start text-xs font-medium text-muted-foreground-1 uppercase"
-                    >
-                      Produk
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-start text-xs font-medium text-muted-foreground-1 uppercase"
-                    >
-                      Stok
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-end text-xs font-medium text-muted-foreground-1 uppercase"
-                    >
-                      Aksi
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-table-line">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">
+                    No
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">
+                    SKU
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">
+                    Produk
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">
+                    Kategori
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-slate-500">
+                    Stok
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-slate-500">
+                    Aksi
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
                   {loading ? (
                     <tr>
                       <td
-                        colSpan={5}
-                        className="px-6 py-8 text-center text-sm text-slate-500"
+                        colSpan={6}
+                        className="px-4 py-8 text-center text-sm text-slate-500"
                       >
                         Memuat data...
                       </td>
@@ -129,31 +118,35 @@ const ProductPage = () => {
                   ) : data.length === 0 ? (
                     <tr>
                       <td
-                        colSpan={5}
-                        className="px-6 py-8 text-center text-sm text-slate-500"
+                        colSpan={6}
+                        className="px-4 py-8 text-center text-sm text-slate-500"
                       >
                         Tidak ada data produk.
                       </td>
                     </tr>
                   ) : (
-                    data.map((item: Product) => (
+                    data.map((item: Product, index) => (
                       <tr key={item.uuid}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">
-                          {item.uuid}
+                        <td className="px-4 py-3 text-sm text-slate-700">
+                          {index + 1}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                        <td className="px-4 py-3 text-sm text-slate-700">
                           {item.product_sku}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                          {item.product_title}
+                        <td className="px-4 py-3 text-sm text-slate-800">
+                          <p className="font-medium">{item.product_title}</p>
+                          <p className="text-xs text-slate-500">{item.unit}</p>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                        <td className="px-4 py-3 text-sm text-slate-700">
+                          {item.category}
+                        </td>
+                        <td className="px-4 py-3 text-right text-sm font-semibold text-slate-700">
                           {item.stock}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+                        <td className="px-4 py-3 text-right text-sm">
                           <Link
                             to={`/edit-product/${item.uuid}`}
-                            className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-3 py-1.5 text-blue-600 transition-colors hover:bg-blue-50"
+                            className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-3 py-1.5 text-slate-700 transition-colors hover:bg-slate-100"
                           >
                             <Pencil size={14} />
                             Edit
@@ -170,9 +163,8 @@ const ProductPage = () => {
                       </tr>
                     ))
                   )}
-                </tbody>
-              </table>
-            </div>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

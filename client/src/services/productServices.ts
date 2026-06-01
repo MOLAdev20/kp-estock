@@ -31,7 +31,7 @@ const services = {
 
         const response = await api.post("/product/" + uuid + "/thumbnail", formData, {
             headers: {
-                "Content-Type": "multipart/form-data",
+                "Content-Type": undefined,
             },
         })
 
