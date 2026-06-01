@@ -6,6 +6,7 @@ import {
   Warehouse,
   LayoutDashboard,
   Users,
+  Building2,
   LogOut,
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
@@ -31,6 +32,7 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
     pathname === "/transaction/create" ||
     /^\/transaction\/[^/]+$/.test(pathname);
   const isStockManagementActive = pathname === "/stock-management";
+  const isSupplierManagementActive = pathname === "/suppliers";
   const isUserManagementActive = pathname === "/users";
 
   const getMenuClassName = (isActive: boolean) =>
@@ -115,6 +117,14 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
             >
               <Calculator size={18} />
               <span>Transaksi</span>
+            </NavLink>
+            <NavLink
+              to="/suppliers"
+              onClick={() => setMobileSidebarOpen(false)}
+              className={() => getMenuClassName(isSupplierManagementActive)}
+            >
+              <Building2 size={18} />
+              <span>Supplier</span>
             </NavLink>
             <NavLink
               to="/stock-management"
