@@ -12,6 +12,7 @@ import ProtectedRoute from "./components/routes/ProtectedRoute.tsx";
 import SuperAdminRoute from "./components/routes/SuperAdminRoute.tsx";
 import AuthRedirectListener from "./components/routes/AuthRedirectListener.tsx";
 import UserManagementPage from "./pages/UserManagement.tsx";
+import SupplierManagementPage from "./pages/SupplierManagement.tsx";
 
 const App = () => {
   return (
@@ -80,6 +81,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <StockManagementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/suppliers"
+          element={
+            <ProtectedRoute>
+              <SupplierManagementPage />
             </ProtectedRoute>
           }
         />

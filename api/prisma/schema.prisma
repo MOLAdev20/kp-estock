@@ -87,3 +87,22 @@ model TransactionItem {
   @@index([product_id])
   @@map("transaction_items")
 }
+
+model Supplier {
+  id                      Int      @id @default(autoincrement())
+  suppliers_code          String   @unique @db.VarChar(50)  // kode_supplier
+  name                    String   @db.VarChar(150)         // nama_supplier
+  pic                     String?  @db.VarChar(100)         // pic (bikin opsional (?) kalau sewaktu-waktu belum ada)
+  phone                   String   @db.VarChar(20)          // nomor_telepon
+  email                   String?  @db.VarChar(100)         // email (opsional, jaga-jaga kalau supplier lokal gak punya email)
+  address                 String   @db.Text                 // alamat
+  moq                     Int      @default(0)              // moq (Minimum Order Quantity, default 0 berarti gak ada MOQ)
+  bankName                String?  @db.VarChar(100)         // nama_bank (opsional)
+  bankAccount             String?  @db.VarChar(50)          // no_rek (opsional)
+  
+  // Timestamps
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  @@map("suppliers") // Biar di database nama tabelnya jadi snake_case jamak (suppliers)
+}

@@ -118,3 +118,30 @@ export type ManagedUser = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type Supplier = {
+  id: number;
+  suppliers_code: string;
+  name: string;
+  pic: string | null;
+  phone: string;
+  email: string | null;
+  address: string;
+  moq: number;
+  bankName: string | null;
+  bankAccount: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type SupplierPayload = {
+  suppliers_code: string;
+  name: string;
+  pic: string;
+  phone: string;
+  email: string;
+  address: string;
+  moq: number;
+  bankName: string;
+  bankAccount: string;
+};
