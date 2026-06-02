@@ -37,6 +37,68 @@ const stockManagementController = {
       });
     }
   },
+
+  getOne: async (req, res) => {
+    try {
+      const data = await stockManagementService.getStockDetail(req.params.uuid);
+
+      return res.status(200).json({
+        success: true,
+        message: "stock product fetched successfully",
+        data,
+      });
+    } catch (err) {
+      return res.status(err.status || 500).json({
+        success: false,
+        message: err.message || "internal server error",
+      });
+    }
+  },
+
+  getAuditTrails: async (req, res) => {
+    try {
+      const data = await stockManagementService.getAuditTrails(
+        req.params.uuid,
+        req.query,
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "stock audit trails fetched successfully",
+        data,
+      });
+    } catch (err) {
+      return res.status(err.status || 500).json({
+        success: false,
+        message: err.message || "internal server error",
+      });
+    }
+  },
+
+  adjustStock: async (req, res) => {
+    try {
+      const data = await stockManagementService.adjustStock({
+        uuid: req.params.uuid,
+        userId: req.user?.id,
+        adjustmentType: req.body?.adjustmentType,
+        action: req.body?.action,
+        adjustment: req.body?.adjustment,
+        supplierId: req.body?.supplierId,
+        notes: req.body?.notes,
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: "product stock adjusted successfully",
+        data,
+      });
+    } catch (err) {
+      return res.status(err.status || 500).json({
+        success: false,
+        message: err.message || "internal server error",
+      });
+    }
+  },
 };
 
 export default stockManagementController;

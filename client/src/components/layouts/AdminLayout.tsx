@@ -31,7 +31,7 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
     pathname === "/transaction" ||
     pathname === "/transaction/create" ||
     /^\/transaction\/[^/]+$/.test(pathname);
-  const isStockManagementActive = pathname === "/stock-management";
+  const isStockManagementActive = pathname.startsWith("/stock-management");
   const isSupplierManagementActive = pathname === "/suppliers";
   const isUserManagementActive = pathname === "/users";
 

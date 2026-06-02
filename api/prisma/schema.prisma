@@ -30,6 +30,8 @@ model product {
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
   transaction_items TransactionItem[]
+
+  stockAuditTrails  StockAuditTrail[]
 }
 
 enum UserRole {
@@ -54,6 +56,8 @@ model User {
   transactions Transaction[]
 
   @@map("users")
+
+  stockAuditTrails  StockAuditTrail[]
 }
 
 model Transaction {
@@ -105,4 +109,28 @@ model Supplier {
   updatedAt               DateTime @updatedAt
 
   @@map("suppliers") // Biar di database nama tabelnya jadi snake_case jamak (suppliers)
+
+  stockAuditTrails  StockAuditTrail[]
+}
+
+model StockAuditTrail {
+  id            Int      @id @default(autoincrement())
+  productId     Int      // Barang mana yang diubah
+  userId        Int      // Siapa yang ngubah (Admin/Gudang)
+  supplierId    Int?     // Dari supplier mana (Nullable, karena kalau opname/hilang mungkin gak butuh supplier)
+  
+  action        String   @db.VarChar(50)  // Jenis perubahan: "MANUAL_ADJUSTMENT", "STOCK_OPNAME", "PO_RECEIPT"
+  initialStock  Int      // Stok awal sebelum diubah (dari berapa)
+  adjustment    Int      // Jumlah perubahan (+10 atau -5)
+  finalStock    Int      // Stok akhir setelah diubah (ke berapa)
+  notes         String?  @db.Text         // Alasan diubah (misal: "Barang rusak", "Kelebihan input")
+  
+  createdAt     DateTime @default(now())
+
+  // Relations (Sesuaikan dengan nama model di project lu)
+  product       product  @relation(fields: [productId], references: [id])
+  user          User     @relation(fields: [userId], references: [id])
+  supplier      Supplier? @relation(fields: [supplierId], references: [id])
+
+  @@map("stock_audit_trails")
 }

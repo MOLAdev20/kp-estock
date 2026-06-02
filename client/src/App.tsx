@@ -7,6 +7,7 @@ import TransactionPage from "./pages/Transaction.tsx";
 import TransactionCreatePage from "./pages/TransactionCreate.tsx";
 import TransactionSummaryPage from "./pages/TransactionSummary.tsx";
 import StockManagementPage from "./pages/StockManagement.tsx";
+import ProductStockPage from "./pages/ProductStock.tsx";
 import DashboardPage from "./pages/Dashboard.tsx";
 import ProtectedRoute from "./components/routes/ProtectedRoute.tsx";
 import SuperAdminRoute from "./components/routes/SuperAdminRoute.tsx";
@@ -81,6 +82,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <StockManagementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stock-management/:uuid"
+          element={
+            <ProtectedRoute>
+              <ProductStockPage />
             </ProtectedRoute>
           }
         />
