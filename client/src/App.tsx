@@ -7,12 +7,16 @@ import TransactionPage from "./pages/Transaction.tsx";
 import TransactionCreatePage from "./pages/TransactionCreate.tsx";
 import TransactionSummaryPage from "./pages/TransactionSummary.tsx";
 import StockManagementPage from "./pages/StockManagement.tsx";
+import ProductStockPage from "./pages/ProductStock.tsx";
 import DashboardPage from "./pages/Dashboard.tsx";
 import ProtectedRoute from "./components/routes/ProtectedRoute.tsx";
 import SuperAdminRoute from "./components/routes/SuperAdminRoute.tsx";
 import AuthRedirectListener from "./components/routes/AuthRedirectListener.tsx";
 import UserManagementPage from "./pages/UserManagement.tsx";
 import SupplierManagementPage from "./pages/SupplierManagement.tsx";
+import StockOpnamePage from "./pages/StockOpname.tsx";
+import StockOpnameCreatePage from "./pages/StockOpnameCreate.tsx";
+import StockOpnameDetailPage from "./pages/StockOpnameDetail.tsx";
 
 const App = () => {
   return (
@@ -85,10 +89,42 @@ const App = () => {
           }
         />
         <Route
+          path="/stock-management/:uuid"
+          element={
+            <ProtectedRoute>
+              <ProductStockPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/suppliers"
           element={
             <ProtectedRoute>
               <SupplierManagementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stock-opname"
+          element={
+            <ProtectedRoute>
+              <StockOpnamePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stock-opname/create"
+          element={
+            <ProtectedRoute>
+              <StockOpnameCreatePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stock-opname/:id"
+          element={
+            <ProtectedRoute>
+              <StockOpnameDetailPage />
             </ProtectedRoute>
           }
         />

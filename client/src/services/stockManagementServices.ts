@@ -1,5 +1,11 @@
 import api from "../api/axios";
-import type { StockManagementProduct } from "../types";
+import type {
+  StockAdjustmentPayload,
+  StockAdjustmentResult,
+  StockAuditTrail,
+  StockAuditTrailFilters,
+  StockManagementProduct,
+} from "../types";
 
 type UpdateStockPayload = {
   stock: number;
@@ -8,6 +14,32 @@ type UpdateStockPayload = {
 const stockManagementServices = {
   getStockProducts: async (): Promise<StockManagementProduct[]> => {
     const response = await api.get("/stock-management");
+    return response.data.data;
+  },
+
+  getStockProduct: async (uuid: string): Promise<StockManagementProduct> => {
+    const response = await api.get(`/stock-management/${uuid}`);
+    return response.data.data;
+  },
+
+  getAuditTrails: async (
+    uuid: string,
+    filters: StockAuditTrailFilters,
+  ): Promise<StockAuditTrail[]> => {
+    const response = await api.get(`/stock-management/${uuid}/audit-trails`, {
+      params: filters,
+    });
+    return response.data.data;
+  },
+
+  adjustProductStock: async (
+    uuid: string,
+    payload: StockAdjustmentPayload,
+  ): Promise<StockAdjustmentResult> => {
+    const response = await api.post(
+      `/stock-management/${uuid}/adjustments`,
+      payload,
+    );
     return response.data.data;
   },
 

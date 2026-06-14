@@ -30,6 +30,9 @@ model product {
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
   transaction_items TransactionItem[]
+
+  stockAuditTrails  StockAuditTrail[]
+  stockOpnameItems StockOpnameItem[]
 }
 
 enum UserRole {
@@ -54,6 +57,9 @@ model User {
   transactions Transaction[]
 
   @@map("users")
+
+  stockAuditTrails  StockAuditTrail[]
+  stockOpnames StockOpname[]
 }
 
 model Transaction {
@@ -105,4 +111,58 @@ model Supplier {
   updatedAt               DateTime @updatedAt
 
   @@map("suppliers") // Biar di database nama tabelnya jadi snake_case jamak (suppliers)
+
+  stockAuditTrails  StockAuditTrail[]
+}
+
+model StockAuditTrail {
+  id            Int      @id @default(autoincrement())
+  productId     Int      // Barang mana yang diubah
+  userId        Int      // Siapa yang ngubah (Admin/Gudang)
+  supplierId    Int?     // Dari supplier mana (Nullable, karena kalau opname/hilang mungkin gak butuh supplier)
+  
+  action        String   @db.VarChar(50)  // Jenis perubahan: "MANUAL_ADJUSTMENT", "STOCK_OPNAME", "PO_RECEIPT"
+  initialStock  Int      // Stok awal sebelum diubah (dari berapa)
+  adjustment    Int      // Jumlah perubahan (+10 atau -5)
+  finalStock    Int      // Stok akhir setelah diubah (ke berapa)
+  notes         String?  @db.Text         // Alasan diubah (misal: "Barang rusak", "Kelebihan input")
+  
+  createdAt     DateTime @default(now())
+
+  // Relations (Sesuaikan dengan nama model di project lu)
+  product       product  @relation(fields: [productId], references: [id])
+  user          User     @relation(fields: [userId], references: [id])
+  supplier      Supplier? @relation(fields: [supplierId], references: [id])
+
+  @@map("stock_audit_trails")
+}
+
+model StockOpname {
+  id           Int               @id @default(autoincrement())
+  opname_code  String            @unique @db.VarChar(191)
+  notes        String?           @db.Text
+  user_id      Int               @db.Int
+  created_at   DateTime          @default(now()) @db.DateTime(3)
+
+
+  user         User             @relation(fields: [user_id], references: [id], map: "stock_opnames_user_id_fkey")
+  items        StockOpnameItem[]
+
+  @@map("stock_opnames")
+}
+
+model StockOpnameItem {
+  id              Int         @id @default(autoincrement())
+  stock_opname_id Int         @db.Int
+  product_id      Int         @db.Int
+  system_stock    Int         @db.Int
+  physical_stock  Int         @db.Int
+  variance        Int         @db.Int
+
+
+  opname          StockOpname @relation(fields: [stock_opname_id], references: [id], onDelete: Cascade, map: "stock_opname_items_opname_id_fkey")
+  product         product     @relation(fields: [product_id], references: [id], map: "stock_opname_items_product_id_fkey")
+
+  @@unique([stock_opname_id, product_id])
+  @@map("stock_opname_items")
 }

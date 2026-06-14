@@ -1,13 +1,13 @@
-import stockManagementService from "../services/stock_management.service.js";
+import stockOpnameService from "../services/stock_opname.service.js";
 
-const stockManagementController = {
-  getAll: async (_, res) => {
+const stockOpnameController = {
+  getRacks: async (_, res) => {
     try {
-      const data = await stockManagementService.getStockList();
+      const data = await stockOpnameService.getRacks();
 
       return res.status(200).json({
         success: true,
-        message: "stock products fetched successfully",
+        message: "stock opname racks fetched successfully",
         data,
       });
     } catch (err) {
@@ -18,16 +18,30 @@ const stockManagementController = {
     }
   },
 
-  updateOne: async (req, res) => {
+  getProductsByRack: async (req, res) => {
     try {
-      const data = await stockManagementService.updateStock({
-        uuid: req.params.uuid,
-        stock: req.body?.stock,
-      });
+      const data = await stockOpnameService.getProductsByRack(req.query?.rack);
 
       return res.status(200).json({
         success: true,
-        message: "product stock updated successfully",
+        message: "stock opname products fetched successfully",
+        data,
+      });
+    } catch (err) {
+      return res.status(err.status || 500).json({
+        success: false,
+        message: err.message || "internal server error",
+      });
+    }
+  },
+
+  getAll: async (_, res) => {
+    try {
+      const data = await stockOpnameService.getList();
+
+      return res.status(200).json({
+        success: true,
+        message: "stock opnames fetched successfully",
         data,
       });
     } catch (err) {
@@ -40,11 +54,11 @@ const stockManagementController = {
 
   getOne: async (req, res) => {
     try {
-      const data = await stockManagementService.getStockDetail(req.params.uuid);
+      const data = await stockOpnameService.getDetail(req.params.id);
 
       return res.status(200).json({
         success: true,
-        message: "stock product fetched successfully",
+        message: "stock opname fetched successfully",
         data,
       });
     } catch (err) {
@@ -55,41 +69,17 @@ const stockManagementController = {
     }
   },
 
-  getAuditTrails: async (req, res) => {
+  create: async (req, res) => {
     try {
-      const data = await stockManagementService.getAuditTrails(
-        req.params.uuid,
-        req.query,
-      );
-
-      return res.status(200).json({
-        success: true,
-        message: "stock audit trails fetched successfully",
-        data,
-      });
-    } catch (err) {
-      return res.status(err.status || 500).json({
-        success: false,
-        message: err.message || "internal server error",
-      });
-    }
-  },
-
-  adjustStock: async (req, res) => {
-    try {
-      const data = await stockManagementService.adjustStock({
-        uuid: req.params.uuid,
+      const data = await stockOpnameService.create({
         userId: req.user?.id,
-        adjustmentType: req.body?.adjustmentType,
-        action: req.body?.action,
-        adjustment: req.body?.adjustment,
-        supplierId: req.body?.supplierId,
-        notes: req.body?.notes,
+        rack: req.body?.rack,
+        items: req.body?.items,
       });
 
       return res.status(201).json({
         success: true,
-        message: "product stock adjusted successfully",
+        message: "stock opname created successfully",
         data,
       });
     } catch (err) {
@@ -101,4 +91,4 @@ const stockManagementController = {
   },
 };
 
-export default stockManagementController;
+export default stockOpnameController;

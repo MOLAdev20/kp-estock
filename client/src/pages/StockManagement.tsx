@@ -1,7 +1,8 @@
 import { isAxiosError } from "axios";
-import { ChevronRight, Home, Pencil, Warehouse } from "lucide-react";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { ChevronRight, Home, PackageSearch } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import AdminLayout from "../components/layouts/AdminLayout";
 import stockManagementServices from "../services/stockManagementServices";
 import type { StockManagementProduct, StockStatus } from "../types";
@@ -34,21 +35,10 @@ const stockStatusConfig: Record<
   },
 };
 
-const extractErrorMessage = (error: unknown) => {
-  if (isAxiosError(error)) {
-    return error.response?.data?.message || "Gagal memperbarui stok produk";
-  }
-
-  return "Gagal memperbarui stok produk";
-};
-
 const StockManagementPage = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState<StockManagementProduct[]>([]);
   const [loading, setLoading] = useState(false);
-  const [updating, setUpdating] = useState(false);
-  const [selectedProduct, setSelectedProduct] =
-    useState<StockManagementProduct | null>(null);
-  const [stockInput, setStockInput] = useState("");
 
   const lowStockCount = useMemo(
     () =>
@@ -73,49 +63,6 @@ const StockManagementPage = () => {
       console.log(error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const openEditModal = (product: StockManagementProduct) => {
-    setSelectedProduct(product);
-    setStockInput(String(product.stock));
-  };
-
-  const closeEditModal = () => {
-    setSelectedProduct(null);
-    setStockInput("");
-  };
-
-  const submitEditStock = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!selectedProduct) {
-      return;
-    }
-
-    const stockValue = Number(stockInput);
-
-    if (!Number.isInteger(stockValue) || stockValue < 0) {
-      toast.error("Stok harus berupa bilangan bulat dan tidak negatif");
-      return;
-    }
-
-    try {
-      setUpdating(true);
-      const updated = await stockManagementServices.updateProductStock(
-        selectedProduct.uuid,
-        { stock: stockValue },
-      );
-
-      setProducts((prev) =>
-        prev.map((item) => (item.uuid === updated.uuid ? updated : item)),
-      );
-      toast.success("Stok produk berhasil diperbarui");
-      closeEditModal();
-    } catch (error) {
-      toast.error(extractErrorMessage(error));
-    } finally {
-      setUpdating(false);
     }
   };
 
@@ -209,11 +156,15 @@ const StockManagementPage = () => {
                   const config = stockStatusConfig[product.stockStatus];
 
                   return (
-                    <tr key={product.uuid}>
+                    <tr
+                      key={product.uuid}
+                      onClick={() => navigate(`/stock-management/${product.uuid}`)}
+                      className="cursor-pointer transition-colors hover:bg-slate-50"
+                    >
                       <td className="px-4 py-3 text-sm text-slate-800">
                         <p className="font-medium">{product.productTitle}</p>
                         <p className="text-xs text-slate-500">
-                          Min. stok {product.minimumStock}
+                          {product.productSku} • Min. stok {product.minimumStock}
                         </p>
                       </td>
                       <td className="px-4 py-3 text-right text-sm text-slate-700">
@@ -234,11 +185,14 @@ const StockManagementPage = () => {
                       <td className="px-4 py-3 text-right text-sm">
                         <button
                           type="button"
-                          onClick={() => openEditModal(product)}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            navigate(`/stock-management/${product.uuid}`);
+                          }}
                           className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-slate-200 px-3 py-1.5 text-slate-700 transition-colors hover:bg-slate-100"
                         >
-                          <Pencil size={14} />
-                          Edit
+                          <PackageSearch size={14} />
+                          Kelola
                         </button>
                       </td>
                     </tr>
@@ -250,61 +204,6 @@ const StockManagementPage = () => {
         </div>
       </div>
 
-      {selectedProduct ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-xl">
-            <div className="flex items-start gap-3">
-              <div className="rounded-md bg-red-100 p-2 text-red-600">
-                <Warehouse size={18} />
-              </div>
-              <div>
-                <h3 className="text-base font-semibold text-slate-800">
-                  Edit Stok Produk
-                </h3>
-                <p className="text-sm text-slate-600">
-                  {selectedProduct.productTitle}
-                </p>
-              </div>
-            </div>
-
-            <form className="mt-4" onSubmit={submitEditStock}>
-              <label
-                htmlFor="stock-input"
-                className="mb-1.5 block text-sm font-medium text-slate-700"
-              >
-                Jumlah Stok Baru
-              </label>
-              <input
-                id="stock-input"
-                type="number"
-                min={0}
-                value={stockInput}
-                onChange={(event) => setStockInput(event.target.value)}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:border-red-500 focus:outline-none"
-                placeholder="Masukkan jumlah stok"
-                required
-              />
-              <div className="mt-5 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={closeEditModal}
-                  disabled={updating}
-                  className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={updating}
-                  className="rounded-md bg-red-500 px-3 py-2 text-sm font-medium text-white hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-70"
-                >
-                  {updating ? "Menyimpan..." : "Simpan Perubahan"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      ) : null}
     </AdminLayout>
   );
 };

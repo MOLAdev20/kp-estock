@@ -68,12 +68,58 @@ export type RefreshSessionResponse = {
 export type StockStatus = "safe" | "low" | "critical";
 
 export type StockManagementProduct = {
+  id: number;
   uuid: string;
+  productSku: string;
   productTitle: string;
+  category: string;
+  unit: string;
   sellingPrice: number;
   stock: number;
   minimumStock: number;
   stockStatus: StockStatus;
+};
+
+export type StockAdjustmentType = "increase" | "decrease";
+
+export type StockAuditTrail = {
+  id: number;
+  action: string;
+  initialStock: number;
+  adjustment: number;
+  finalStock: number;
+  notes: string | null;
+  createdAt: string;
+  user: {
+    id: number;
+    username: string;
+  } | null;
+  supplier: {
+    id: number;
+    suppliers_code: string;
+    name: string;
+  } | null;
+};
+
+export type StockAuditTrailFilters = {
+  periodType: "monthly" | "yearly";
+  month?: number;
+  year: number;
+  supplierId?: number | "";
+  adjustmentType?: "all" | StockAdjustmentType;
+};
+
+export type StockAdjustmentPayload = {
+  adjustmentType: StockAdjustmentType;
+  action: string;
+  adjustment: number;
+  supplierId?: number | null;
+  notes: string;
+};
+
+export type StockAdjustmentResult = {
+  product: StockManagementProduct;
+  trail: StockAuditTrail;
 };
 
 export type DashboardSummary = {
@@ -144,4 +190,47 @@ export type SupplierPayload = {
   moq: number;
   bankName: string;
   bankAccount: string;
+};
+
+export type OpnameRackProduct = {
+  id: number;
+  uuid: string;
+  productSku: string;
+  productTitle: string;
+  category: string;
+  unit: string;
+  rack: string;
+  systemStock: number;
+};
+
+export type StockOpnameItem = {
+  id: number;
+  productId: number;
+  productSku: string | null;
+  productTitle: string | null;
+  unit: string | null;
+  systemStock: number;
+  physicalStock: number;
+  variance: number;
+};
+
+export type StockOpname = {
+  id: number;
+  opnameCode: string;
+  notes: string | null;
+  createdAt: string;
+  user: {
+    id: number;
+    username: string;
+  } | null;
+  totalItems?: number;
+  items?: StockOpnameItem[];
+};
+
+export type CreateStockOpnamePayload = {
+  rack: string;
+  items: {
+    product_id: number;
+    physical_stock: number;
+  }[];
 };
