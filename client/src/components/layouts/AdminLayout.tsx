@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Users,
   Building2,
+  ClipboardList,
   LogOut,
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
@@ -34,6 +35,7 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
   const isStockManagementActive = pathname.startsWith("/stock-management");
   const isSupplierManagementActive = pathname === "/suppliers";
   const isUserManagementActive = pathname === "/users";
+  const isStockOpnameActive = pathname.startsWith("/stock-opname");
 
   const getMenuClassName = (isActive: boolean) =>
     `py-2 px-3 flex items-center gap-1 rounded-md transition-colors ${
@@ -134,6 +136,14 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
               <Warehouse size={18} />
               <span>Stock Management</span>
             </NavLink>
+            <NavLink
+              to="/stock-opname"
+              onClick={() => setMobileSidebarOpen(false)}
+              className={() => getMenuClassName(isStockOpnameActive)}
+            >
+              <ClipboardList size={18} />
+              <span>Stock Opname</span>
+            </NavLink>
             {showUserManagementMenu ? (
               <NavLink
                 to="/users"
@@ -161,7 +171,7 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
           <div className="flex min-h-[calc(100vh-3.5rem)] flex-col p-5">
             <div>{children}</div>
             <footer className="mt-auto pt-8 text-center text-xs text-slate-400">
-              Copyright 2026 Kelompok 11 Kerja Praktek
+              Copyright 2026 Kelompok 11 Rekayasa Perangkat Lunak
             </footer>
           </div>
         </div>

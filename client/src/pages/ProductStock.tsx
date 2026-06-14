@@ -285,10 +285,10 @@ const ProductStockPage = () => {
             className="mb-3 inline-flex items-center gap-1 text-sm text-slate-600 hover:text-red-600"
           >
             <ArrowLeft size={16} />
-            Kembali ke Stock Management
+            Kembali ke Manajemen Stok
           </Link>
           <h1 className="text-3xl sm:text-4xl">
-            Product Stock {product ? `"${product.productTitle}"` : ""}
+            Stok {product ? `${product.productTitle}` : ""}
           </h1>
           <small>Workspace untuk audit, tambah, dan kurangi stok produk</small>
         </div>

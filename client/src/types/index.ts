@@ -191,3 +191,46 @@ export type SupplierPayload = {
   bankName: string;
   bankAccount: string;
 };
+
+export type OpnameRackProduct = {
+  id: number;
+  uuid: string;
+  productSku: string;
+  productTitle: string;
+  category: string;
+  unit: string;
+  rack: string;
+  systemStock: number;
+};
+
+export type StockOpnameItem = {
+  id: number;
+  productId: number;
+  productSku: string | null;
+  productTitle: string | null;
+  unit: string | null;
+  systemStock: number;
+  physicalStock: number;
+  variance: number;
+};
+
+export type StockOpname = {
+  id: number;
+  opnameCode: string;
+  notes: string | null;
+  createdAt: string;
+  user: {
+    id: number;
+    username: string;
+  } | null;
+  totalItems?: number;
+  items?: StockOpnameItem[];
+};
+
+export type CreateStockOpnamePayload = {
+  rack: string;
+  items: {
+    product_id: number;
+    physical_stock: number;
+  }[];
+};

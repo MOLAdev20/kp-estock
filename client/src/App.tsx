@@ -14,6 +14,9 @@ import SuperAdminRoute from "./components/routes/SuperAdminRoute.tsx";
 import AuthRedirectListener from "./components/routes/AuthRedirectListener.tsx";
 import UserManagementPage from "./pages/UserManagement.tsx";
 import SupplierManagementPage from "./pages/SupplierManagement.tsx";
+import StockOpnamePage from "./pages/StockOpname.tsx";
+import StockOpnameCreatePage from "./pages/StockOpnameCreate.tsx";
+import StockOpnameDetailPage from "./pages/StockOpnameDetail.tsx";
 
 const App = () => {
   return (
@@ -98,6 +101,30 @@ const App = () => {
           element={
             <ProtectedRoute>
               <SupplierManagementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stock-opname"
+          element={
+            <ProtectedRoute>
+              <StockOpnamePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stock-opname/create"
+          element={
+            <ProtectedRoute>
+              <StockOpnameCreatePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stock-opname/:id"
+          element={
+            <ProtectedRoute>
+              <StockOpnameDetailPage />
             </ProtectedRoute>
           }
         />
