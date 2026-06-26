@@ -1,8 +1,9 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   Menu,
   Database,
   Calculator,
+  ChevronDown,
   Warehouse,
   LayoutDashboard,
   Users,
@@ -17,6 +18,7 @@ import { markSkipAuthRedirectMessage } from "../../utils/authRedirect";
 
 const AdminLayout = ({ children }: { children: ReactNode }) => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [transactionMenuOpen, setTransactionMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -28,20 +30,34 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
     pathname === "/products" ||
     pathname === "/add-product" ||
     pathname.startsWith("/edit-product/");
-  const isTransactionActive =
+  const isTransactionListActive =
     pathname === "/transaction" ||
-    pathname === "/transaction/create" ||
-    /^\/transaction\/[^/]+$/.test(pathname);
+    (pathname.startsWith("/transaction/") &&
+      pathname !== "/transaction/create");
+  const isTransactionCreateActive = pathname === "/transaction/create";
+  const isTransactionActive =
+    isTransactionListActive || isTransactionCreateActive;
   const isStockManagementActive = pathname.startsWith("/stock-management");
   const isSupplierManagementActive = pathname === "/suppliers";
   const isUserManagementActive = pathname === "/users";
   const isStockOpnameActive = pathname.startsWith("/stock-opname");
 
+  useEffect(() => {
+    setTransactionMenuOpen(isTransactionActive);
+  }, [isTransactionActive]);
+
   const getMenuClassName = (isActive: boolean) =>
-    `py-2 px-3 flex items-center gap-1 rounded-md transition-colors ${
+    `w-full py-2 px-3 flex items-center gap-1 rounded-md transition-colors ${
       isActive
         ? "bg-red-500 text-white"
         : "text-slate-700 hover:text-white hover:bg-red-500"
+    }`;
+
+  const getSubMenuClassName = (isActive: boolean) =>
+    `py-2 px-3 flex items-center gap-1 rounded-md transition-colors text-sm ${
+      isActive
+        ? "bg-red-50 text-red-600"
+        : "text-slate-600 hover:text-red-600 hover:bg-slate-50"
     }`;
 
   const handleLogout = async () => {
@@ -112,14 +128,44 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
               <Database size={18} />
               <span>Master Produk</span>
             </NavLink>
-            <NavLink
-              to="/transaction"
-              onClick={() => setMobileSidebarOpen(false)}
-              className={() => getMenuClassName(isTransactionActive)}
-            >
-              <Calculator size={18} />
-              <span>Transaksi</span>
-            </NavLink>
+            <div>
+              <button
+                type="button"
+                onClick={() => setTransactionMenuOpen((prev) => !prev)}
+                className={`${getMenuClassName(isTransactionActive || transactionMenuOpen)} justify-start text-left`}
+              >
+                <Calculator size={18} />
+                <span>Transaksi</span>
+                <ChevronDown
+                  size={16}
+                  className={`ml-auto transition-transform ${
+                    transactionMenuOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {transactionMenuOpen ? (
+                <div className="mt-1 ml-4 flex flex-col gap-1 border-l border-slate-200 pl-3">
+                  <NavLink
+                    to="/transaction"
+                    onClick={() => setMobileSidebarOpen(false)}
+                    className={() =>
+                      getSubMenuClassName(isTransactionListActive)
+                    }
+                  >
+                    <span>Data Transaksi</span>
+                  </NavLink>
+                  <NavLink
+                    to="/transaction/create"
+                    onClick={() => setMobileSidebarOpen(false)}
+                    className={() =>
+                      getSubMenuClassName(isTransactionCreateActive)
+                    }
+                  >
+                    <span>Buat Transaksi</span>
+                  </NavLink>
+                </div>
+              ) : null}
+            </div>
             <NavLink
               to="/suppliers"
               onClick={() => setMobileSidebarOpen(false)}
